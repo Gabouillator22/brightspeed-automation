@@ -1,0 +1,21 @@
+{
+  "sheet_width_ft": 974,
+  "sheet_height_ft": 473,
+  "overlap_ft": 0,
+  "side_margin_ft": 75,
+  "road_buffer_left_ft": 150,
+  "road_buffer_right_ft": 150,
+  "required_edge_clearance_ft": 20,
+  "endpoint_inset_ratio": 0.6667,
+  "fixed_sheet_angle_deg": 0,
+  "target_epsg": 2264,
+  "border_layer": "BORDER",
+  "proposed_layer": "BS-SHEET-PROPOSED",
+  "label_layer": "BS-SHEET-LABELS",
+  "hidden_layer": "BS-SHEET-HIDDEN",
+  "sample_interval_ft": 25,
+  "label_height_ft": 60,
+  "placement_mode": "follow_route",
+  "bend_threshold_deg": 25.0,
+  "bend_clearance_ft": 50.0
+}

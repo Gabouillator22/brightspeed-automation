@@ -1,8 +1,53 @@
+# --- Customer / job data (never commit) ---
+*.kmz
+*.dwg
+*.dxf
+*.pdf
+*.xlsx
+*.docx
+*.zip
+
+# Allow the README and intentional .md files
+!README.md
+!SESSION_NOTES.md
+!BSSHEET_README.md
+
+# --- Generated caches ---
+05_toolkit/cache/
+*.cached.dxf
+
+# --- Job-specific subfolders ---
 01_intake/
 06_jobs/
 07_reviews/
+job files/
+04_documentation/
+_kmz_extract/
+_python_autocad_test/
+
+# --- AutoCAD scratch ---
+*.bak
+*.dwl
+*.dwl2
+*.err
+*.log
+acad.err
+
+# --- Python / venv ---
+.venv/
 node_modules/
 __pycache__/
 *.pyc
 .env
-*.log
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+
+# --- Generated outputs ---
+bssheet_plan.csv
+bssheet_report.txt
+bssheet_route_selected.txt
