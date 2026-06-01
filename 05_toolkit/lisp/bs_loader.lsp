@@ -93,6 +93,7 @@
     "bsminerdoc.lsp" "bsaudit.lsp" "bscleanup.lsp" "bsparcels.lsp"
     "bsparsnap.lsp" "bsrowdims.lsp" "bskmz.lsp" "bskmz.ps1"
     "bskmz_snap.lsp" "bssheets.lsp" "bssheet_kmz.lsp"
+    "bscallouts_auto.lsp"
     "bsclean_border.lsp"))
 
 (defun bs-missing-files (dir / missing f)
@@ -266,6 +267,9 @@
 ;; One-step KMZ import + proposed sheet placement
 (bs-load-file "bssheet_kmz.lsp")
 
+;; Sheet-aware multileader callout automation
+(bs-load-file "bscallouts_auto.lsp")
+
 ;; Border cleanup loaded last so it owns BSCLEAN/BSCLEANRECT command names
 (bs-load-file "bsclean_border.lsp")
 (if c:BSCLEANMAP
@@ -287,6 +291,11 @@
 (princ "\n  BSCALLOUT-AUTO- Auto-callout all BURIED FIBER IN DUCT")
 (princ "\n  BSAERIAL      - Aerial fiber callout (pick fiber + point)")
 (princ "\n  BSAERIAL-AUTO - Auto-callout all AERIAL FIBER + ELASH")
+(princ "\n  BSCALLOUTS-RUN        - Sheet-aware structures + buried + aerial callouts")
+(princ "\n  BSCALLOUTS-STRUCTURES - Handhole/bore pit multileader callouts")
+(princ "\n  BSCALLOUTS-BURIED     - Buried fiber segment multileader callouts")
+(princ "\n  BSCALLOUTS-AERIAL     - Aerial callouts + AUBS footage markers")
+(princ "\n  BSCALLOUTS-AUDIT      - Count callout source objects")
 (princ "\n")
 (princ "\n  COMMANDS — LABELING:")
 (princ "\n  BSSTATION     - Auto-station HH/borepits/poles")

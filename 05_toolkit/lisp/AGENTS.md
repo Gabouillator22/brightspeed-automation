@@ -54,6 +54,7 @@ New files are registered via `(bs-load-file "bsNEWFILE.lsp")` at the end of bs_l
 | `bscallout.lsp` | BSCALLOUT, BSCALLOUT-AUTO | Buried fiber callouts |
 | `bsaerial.lsp` | BSAERIAL, BSAERIAL-AUTO | Aerial callouts (no footage) |
 | `bsstation.lsp` | BSSTATION | Auto-station HH/bore/poles |
+| `bscallouts_auto.lsp` | BSCALLOUTS-RUN, BSCALLOUTS-STRUCTURES, BSCALLOUTS-BURIED, BSCALLOUTS-AERIAL, BSCALLOUTS-AUDIT | Sheet-aware multileader callout automation |
 | `bsdrive.lsp` | BSDRIVE | Driveway drafting |
 | `bsworkarea.lsp` | BSWORKAREA | WORK AREA START/END labels |
 | `bsminerdoc.lsp` | BSMINERDOC | MIN D.O.C. 60" note |
