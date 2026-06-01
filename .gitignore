@@ -6,11 +6,16 @@
 *.xlsx
 *.docx
 *.zip
+*.rar
 
-# Allow the README and intentional .md files
+# Allow intentional .md files
 !README.md
+!AGENTS.md
+!CLAUDE.md
 !SESSION_NOTES.md
 !BSSHEET_README.md
+!05_toolkit/lisp/AGENTS.md
+!05_toolkit/python/AGENTS.md
 
 # --- Generated caches ---
 05_toolkit/cache/
@@ -39,13 +44,18 @@ node_modules/
 __pycache__/
 *.pyc
 .env
+.env.*
 
 # --- OS / IDE ---
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-.claude/
+.codex/
+
+# --- Claude Code — commit .claude/ EXCEPT local overrides and worktrees ---
+.claude/settings.local.json
+.claude/worktrees/
 
 # --- Generated outputs ---
 bssheet_plan.csv
