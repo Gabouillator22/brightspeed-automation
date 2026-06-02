@@ -15,6 +15,7 @@
 (vl-load-com)
 
 (setq *bsca-callout-layer* "CABLE CALLOUTS")
+(setq *bsca-station-layer* "STATIONING")
 (setq *bsca-buried-layer* "BURIED FIBER IN DUCT")
 (setq *bsca-aerial-layer* "AERIAL FIBER")
 (setq *bsca-elash-layer*  "ELASH")
@@ -379,6 +380,23 @@
         (setq i (1+ i)))))
   found)
 
+(defun bsca-existing-text-on-layer-p (text pt layer / ss i ent txt ept found)
+  (setq ss (ssget "_X" (list (cons 8 layer)))
+        found nil)
+  (if ss
+    (progn
+      (setq i 0)
+      (while (and (< i (sslength ss)) (not found))
+        (setq ent (ssname ss i)
+              txt (bsca-object-text ent)
+              ept (bsca-object-point ent))
+        (if (and txt ept
+                 (= (bsca-up txt) (bsca-up text))
+                 (<= (distance ept pt) *bsca-dup-radius*))
+          (setq found T))
+        (setq i (1+ i)))))
+  found)
+
 ;;; ------------------------------------------------------------
 ;;; Entity creation
 ;;; ------------------------------------------------------------
@@ -386,16 +404,18 @@
 (defun bsca-ensure-callout-layer ( / )
   (bs-ensure-layer *bsca-callout-layer* 7))
 
+(defun bsca-ensure-station-layer ( / )
+  (bs-ensure-layer *bsca-station-layer* 7))
+
 (defun bsca-set-prop-safe (obj prop value / )
   (vl-catch-all-apply 'vlax-put-property (list obj prop value)))
 
 (defun bsca-apply-mleader-box (obj / )
-  ;; Finished examples use one Multileader with the callout text inside a
-  ;; filled background mask. The border/frame itself should stay off.
+  ;; Restore the earlier working look: filled callout with visible frame.
   (bsca-set-prop-safe obj 'TextBackgroundFill :vlax-true)
   (bsca-set-prop-safe obj 'TextBackgroundScaleFactor 1.1)
-  (bsca-set-prop-safe obj 'TextFrameDisplay :vlax-false)
-  (bsca-set-prop-safe obj 'EnableFrameText :vlax-false)
+  (bsca-set-prop-safe obj 'TextFrameDisplay :vlax-true)
+  (bsca-set-prop-safe obj 'EnableFrameText :vlax-true)
   (bsca-set-prop-safe obj 'BackgroundFill :vlax-true)
   obj)
 
@@ -482,6 +502,28 @@
                 (vl-catch-all-apply 'vlax-put-property (list prop 'Value text)))))))
       ent)
     (bsca-make-mleader pt (bs-vadd pt (list 15.0 10.0 0.0)) text))))
+
+(defun bsca-make-station-mtext (ins-pt text angle / doc ms obj)
+  (bsca-ensure-station-layer)
+  (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
+  (setq ms  (vla-get-ModelSpace doc))
+  (setq obj (vla-AddMText ms (vlax-3d-point ins-pt) 0.0 text))
+  (bsca-set-prop-safe obj 'Layer *bsca-station-layer*)
+  (bsca-set-prop-safe obj 'TextHeight *bsca-text-height*)
+  (bsca-set-prop-safe obj 'AttachmentPoint 5)
+  (bsca-set-prop-safe obj 'BackgroundFill :vlax-true)
+  (bsca-set-prop-safe obj 'UseBackgroundColor :vlax-true)
+  (if angle
+    (bsca-set-prop-safe obj 'Rotation angle))
+  obj)
+
+(defun bsca-add-station-callout-if-new (text arrow-pt text-pt angle / line mt)
+  (if (bsca-existing-text-on-layer-p text text-pt *bsca-station-layer*)
+    nil
+    (progn
+      (setq line (bs-make-leader-line arrow-pt text-pt *bsca-callout-layer*))
+      (setq mt (bsca-make-station-mtext text-pt text angle))
+      (if mt mt line))))
 
 (defun bsca-existing-aubs-p (pt / ss i ent ip found)
   (setq ss (ssget "_X" (list (cons 0 "INSERT") (cons 2 *bsca-aubs-block*)))
@@ -716,7 +758,7 @@
         (setq angle (if (or (bsca-borepit-p ent) (bsca-handhole-p ent))
                       (bsca-structure-rotation ent)
                       nil))
-        (if (bsca-add-mleader-if-new-rot txt pt textpt angle)
+        (if (bsca-add-station-callout-if-new txt pt textpt angle)
           (setq placed (1+ placed))
           (setq skipped (1+ skipped))))
       (setq skipped (1+ skipped))))
@@ -785,8 +827,6 @@
                                       d1 d2 seglen mid arrow text textpt border-hits bh border
                                       placed skipped)
   (setq ss (bsca-layer-ss *bsca-buried-layer* "LWPOLYLINE,POLYLINE"))
-  (setq structs (bsca-structure-inserts))
-  (setq borders (bsca-border-list))
   (setq placed 0 skipped 0)
   (if ss
     (progn
@@ -794,30 +834,21 @@
       (while (< i (sslength ss))
         (setq ent (ssname ss i))
         (setq len (bsca-curve-len ent))
-        (setq hits (bsca-projected-structures-on-curve ent structs))
-        (setq intervals (bsca-intervals-from-structure-dists len hits))
-        (foreach interval intervals
-          (setq d1 (car interval)
-                d2 (cadr interval)
-                seglen (- d2 d1)
-                mid (/ (+ d1 d2) 2.0)
-                arrow (bsca-pt-at-dist ent mid)
-                text (strcat "HDD BORE " (itoa (bsca-round-ft seglen)) "' FIBER IN 2\" DUCT"))
-          (if arrow
-            (progn
-              (setq border-hits (bsca-borders-for-curve-range ent d1 d2 borders))
-              (if (not border-hits) (setq border-hits (list nil)))
-              (foreach bh border-hits
-                (setq arrow (bsca-buried-arrow-point ent d1 d2 (if bh (cadr bh) nil)))
-                (setq border (if bh (bsca-border-by-handle borders (car bh)) nil))
-                (if arrow
-                  (progn
-                    (setq textpt (bsca-clear-buried-text-point ent arrow text border))
-                    (if (bsca-add-mleader-if-new text arrow textpt)
-                      (setq placed (1+ placed))
-                      (setq skipped (1+ skipped))))
-                  (setq skipped (1+ skipped)))))
-            (setq skipped (1+ skipped))))
+        (if (> len 1.0)
+          (progn
+            (setq mid (/ len 2.0)
+                  arrow (bsca-pt-at-dist ent mid)
+                  text (strcat "HDD BORE " (itoa (bsca-round-ft len)) "' FIBER IN 2\" DUCT"))
+            (if arrow
+              (progn
+                ;; Legacy stable placement: one label per buried segment.
+                ;; Avoids the sheet/structure split path that caused cons errors.
+                (setq textpt (bsca-clear-buried-text-point ent arrow text nil))
+                (if (bsca-add-mleader-if-new text arrow textpt)
+                  (setq placed (1+ placed))
+                  (setq skipped (1+ skipped))))
+              (setq skipped (1+ skipped))))
+          (setq skipped (1+ skipped)))
         (setq i (1+ i)))))
   (list placed skipped))
 
@@ -937,7 +968,7 @@
   (list hh bore other))
 
 (defun bsca-count-callout-texts ( / ss i ent txt hh bore)
-  (setq ss (ssget "_X" (list (cons 8 *bsca-callout-layer*)))
+  (setq ss (ssget "_X" (list (cons 8 *bsca-station-layer*)))
         i 0
         hh 0
         bore 0)
