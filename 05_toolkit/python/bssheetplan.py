@@ -25,7 +25,7 @@ except ImportError as exc:  # pragma: no cover - dependency guard
 
 try:
     from shapely.geometry import LineString, Point, Polygon, shape
-    from shapely.ops import linemerge
+    from shapely.ops import linemerge, unary_union
 except ImportError as exc:  # pragma: no cover - dependency guard
     raise SystemExit(
         "Missing dependency: shapely. Install with: python -m pip install pyproj shapely"
@@ -51,6 +51,7 @@ DEFAULT_CONFIG = {
     "hidden_layer": "BS-SHEET-HIDDEN",
     "sample_interval_ft": 25.0,
     "label_height_ft": 60.0,
+    "placement_mode": "branch_grid",
 }
 
 
@@ -290,6 +291,87 @@ def merge_touching_parts(parts: list[RoutePart]) -> list[tuple[str, LineString]]
     return lines
 
 
+def kmz_dist2d(a: tuple[float, float], b: tuple[float, float]) -> float:
+    dx = b[0] - a[0]
+    dy = b[1] - a[1]
+    return math.hypot(dx, dy)
+
+
+def kmz_interp(a: tuple[float, float], b: tuple[float, float], ratio: float) -> tuple[float, float]:
+    return (
+        a[0] + (b[0] - a[0]) * ratio,
+        a[1] + (b[1] - a[1]) * ratio,
+    )
+
+
+def kmz_required_points_from_verts(
+    verts: list[tuple[float, float]],
+    sample_ft: float,
+    buffer_ft: float,
+) -> list[tuple[float, float]]:
+    pts: list[tuple[float, float]] = []
+    if len(verts) < 2:
+        return pts
+
+    i = 0
+    while (i + 1) < len(verts):
+        a = verts[i]
+        b = verts[i + 1]
+        seglen = kmz_dist2d(a, b)
+        d = 0.0
+        while d <= seglen:
+            ratio = (d / seglen) if seglen > 0.001 else 0.0
+            p = kmz_interp(a, b, ratio)
+            pts.append(p)
+            pts.append((p[0], p[1] + buffer_ft))
+            pts.append((p[0], p[1] - buffer_ft))
+            d += sample_ft
+        i += 1
+    return pts
+
+
+def kmz_required_points(
+    parts: list[RoutePart],
+    sample_ft: float,
+    buffer_ft: float,
+) -> list[tuple[float, float]]:
+    pts: list[tuple[float, float]] = []
+    for part in parts:
+        pts.extend(kmz_required_points_from_verts(part.coords, sample_ft, buffer_ft))
+    return pts
+
+
+def kmz_minmax_x(pts: list[tuple[float, float]]) -> tuple[float, float] | None:
+    if not pts:
+        return None
+    minx = pts[0][0]
+    maxx = pts[0][0]
+    for x, _y in pts[1:]:
+        minx = min(minx, x)
+        maxx = max(maxx, x)
+    return minx, maxx
+
+
+def kmz_slice_y_range(
+    pts: list[tuple[float, float]],
+    x1: float,
+    x2: float,
+) -> tuple[float, float] | None:
+    found = False
+    miny = maxy = 0.0
+    for x, y in pts:
+        if x1 <= x <= x2:
+            if not found:
+                miny = maxy = y
+                found = True
+            else:
+                miny = min(miny, y)
+                maxy = max(maxy, y)
+    if found:
+        return miny, maxy
+    return None
+
+
 def tangent_angle(line: LineString, station: float) -> float:
     length = line.length
     station = min(max(station, 0.0), length)
@@ -360,6 +442,8 @@ def make_sheet_at_center(
     angle: float,
     width: float,
     height: float,
+    start_station: float = 0.0,
+    end_station: float = 0.0,
 ) -> Sheet:
     return Sheet(
         sheet_number=sheet_number,
@@ -369,8 +453,8 @@ def make_sheet_at_center(
         angle_rad=angle,
         width=width,
         height=height,
-        start_station=0.0,
-        end_station=0.0,
+        start_station=start_station,
+        end_station=end_station,
         vertices=rectangle_vertices(center_x, center_y, angle, width, height),
     )
 
@@ -452,59 +536,390 @@ def world_from_axis(s: float, t: float, angle: float) -> tuple[float, float]:
     return s * ux + t * vx, s * uy + t * vy
 
 
-def plan_line_grid(branch_index: int, line: LineString, config: dict[str, Any], start_number: int) -> tuple[list[Sheet], list[str]]:
-    width = float(config["sheet_width_ft"])
-    height = float(config["sheet_height_ft"])
-    angle = math.radians(float(config["fixed_sheet_angle_deg"]))
-    endpoint_ratio = min(max(float(config["endpoint_inset_ratio"]), 0.5), 0.9)
+def route_axis_angle(line: LineString) -> float:
+    coords = list(line.coords)
+    if len(coords) < 2:
+        return 0.0
+
+    vx = 0.0
+    vy = 0.0
+    for i in range(1, len(coords)):
+        dx = float(coords[i][0] - coords[i - 1][0])
+        dy = float(coords[i][1] - coords[i - 1][1])
+        seg_len = math.hypot(dx, dy)
+        if seg_len <= 1e-9:
+            continue
+        vx += dx
+        vy += dy
+
+    if math.hypot(vx, vy) <= 1e-9:
+        dx = float(coords[-1][0] - coords[0][0])
+        dy = float(coords[-1][1] - coords[0][1])
+        if math.hypot(dx, dy) <= 1e-9:
+            return 0.0
+        return math.atan2(dy, dx)
+    return math.atan2(vy, vx)
+
+
+def corridor_sample_points(line: LineString, config: dict[str, Any], angle: float) -> list[tuple[float, float]]:
     interval = float(config["sample_interval_ft"])
     left = max(0.0, float(config["road_buffer_left_ft"]))
     right = max(0.0, float(config["road_buffer_right_ft"]))
     offset_interval = max(interval, min(left or interval, right or interval, interval))
 
-    start_pt = line.interpolate(0.0)
-    start_s, start_t = axis_coords(start_pt, angle)
-    grid_left = start_s - endpoint_ratio * width
-    grid_bottom = start_t - height / 2.0
-
-    cells: OrderedDict[tuple[int, int], None] = OrderedDict()
+    samples: list[tuple[float, float]] = []
     for station in sample_stations(line.length, interval):
         for offset in sample_offsets(left, right, offset_interval):
             pt = offset_point(line, station, offset)
-            s, t = axis_coords(pt, angle)
-            ix = math.floor((s - grid_left) / width)
-            iy = math.floor((t - grid_bottom) / height)
-            cells.setdefault((ix, iy), None)
+            samples.append(axis_coords(pt, angle))
+    return samples
+
+
+def corridor_station_groups(line: LineString, config: dict[str, Any], angle: float) -> list[tuple[float, list[tuple[float, float]]]]:
+    """Return ordered station groups in axis coordinates for greedy windowing."""
+    interval = float(config["sample_interval_ft"])
+    groups: list[tuple[float, list[tuple[float, float]]]] = []
+    for station in sample_stations(line.length, interval):
+        pts = [axis_coords(point_at_station(line, station), angle)]
+        groups.append((station, pts))
+    return groups
+
+
+def bounds_fit_in_sheet(
+    min_s: float,
+    min_t: float,
+    max_s: float,
+    max_t: float,
+    usable_width: float,
+    usable_height: float,
+) -> bool:
+    return (max_s - min_s) <= usable_width and (max_t - min_t) <= usable_height
+
+
+def bounds_center_to_world(
+    min_s: float,
+    min_t: float,
+    max_s: float,
+    max_t: float,
+    angle: float,
+) -> tuple[float, float]:
+    center_s = (min_s + max_s) / 2.0
+    center_t = (min_t + max_t) / 2.0
+    return world_from_axis(center_s, center_t, angle)
+
+
+def _route_sample_points(line: LineString, interval: float) -> list[tuple[float, float, float]]:
+    samples: list[tuple[float, float, float]] = []
+    seen: set[tuple[float, float]] = set()
+    for station in sample_stations(line.length, interval):
+        pt = line.interpolate(station)
+        key = (round(pt.x, 6), round(pt.y, 6))
+        if key not in seen:
+            seen.add(key)
+            samples.append((station, pt.x, pt.y))
+    for x, y in line.coords:
+        pt = Point(float(x), float(y))
+        station = line.project(pt)
+        key = (round(pt.x, 6), round(pt.y, 6))
+        if key not in seen:
+            seen.add(key)
+            samples.append((station, pt.x, pt.y))
+    samples.sort(key=lambda item: (item[0], item[1], item[2]))
+    return samples
+
+
+def _grid_residue(value: float, period: float) -> float:
+    if period <= 0.0:
+        return 0.0
+    residue = math.fmod(value, period)
+    if residue < 0.0:
+        residue += period
+    return round(residue, 6)
+
+
+def _iter_line_geometries(geom: Any) -> Iterable[LineString]:
+    if geom is None or getattr(geom, "is_empty", True):
+        return []
+    geom_type = getattr(geom, "geom_type", "")
+    if geom_type == "LineString":
+        return [geom]
+    if geom_type == "MultiLineString":
+        return list(geom.geoms)
+    if geom_type == "GeometryCollection":
+        out: list[LineString] = []
+        for sub in geom.geoms:
+            out.extend(_iter_line_geometries(sub))
+        return out
+    return []
+
+
+def _cell_for_point(x: float, y: float, origin_x: float, origin_y: float, width: float, height: float) -> tuple[int, int]:
+    return (
+        math.floor((x - origin_x) / width),
+        math.floor((y - origin_y) / height),
+    )
+
+
+def _sheet_for_cell(
+    branch_index: int,
+    sheet_number: str,
+    cell: tuple[int, int],
+    origin_x: float,
+    origin_y: float,
+    width: float,
+    height: float,
+) -> Sheet:
+    ix, iy = cell
+    min_x = origin_x + ix * width
+    min_y = origin_y + iy * height
+    center_x = min_x + width / 2.0
+    center_y = min_y + height / 2.0
+    return make_sheet_at_center(
+        sheet_number,
+        branch_index,
+        center_x,
+        center_y,
+        0.0,
+        width,
+        height,
+    )
+
+
+def _station_range_for_sheet(line: LineString, sheet: Sheet) -> tuple[float, float]:
+    inter = line.intersection(sheet_polygon(sheet))
+    stations: list[float] = []
+    for geom in _iter_line_geometries(inter):
+        for x, y, *_ in geom.coords:
+            stations.append(line.project(Point(float(x), float(y))))
+    if not stations:
+        return 0.0, 0.0
+    return min(stations), max(stations)
+
+
+def _occupied_cells_for_origin(
+    line: LineString,
+    config: dict[str, Any],
+    origin_x: float,
+    origin_y: float,
+    width: float,
+    height: float,
+) -> OrderedDict[tuple[int, int], list[float]]:
+    interval = max(1.0, float(config["sample_interval_ft"]))
+    occupied: OrderedDict[tuple[int, int], list[float]] = OrderedDict()
+    for station, x, y in _route_sample_points(line, interval):
+        cell = _cell_for_point(x, y, origin_x, origin_y, width, height)
+        occupied.setdefault(cell, []).append(station)
+    return occupied
+
+
+def _fill_uncovered_cells(
+    line: LineString,
+    config: dict[str, Any],
+    origin_x: float,
+    origin_y: float,
+    width: float,
+    height: float,
+    occupied: OrderedDict[tuple[int, int], list[float]],
+) -> OrderedDict[tuple[int, int], list[float]]:
+    sample_interval = max(1.0, float(config["sample_interval_ft"]))
+    safety_passes = 0
+    while True:
+        sheets = [
+            _sheet_for_cell(1, f"S{i:03d}", cell, origin_x, origin_y, width, height)
+            for i, cell in enumerate(occupied.keys(), 1)
+        ]
+        coverage = unary_union([sheet_polygon(sheet) for sheet in sheets]) if sheets else None
+        uncovered = line if coverage is None else line.difference(coverage)
+        if getattr(uncovered, "is_empty", True):
+            return occupied
+
+        added = False
+        for geom in _iter_line_geometries(uncovered):
+            for station in sample_stations(geom.length, min(sample_interval, min(width, height) / 4.0)):
+                pt = geom.interpolate(station)
+                cell = _cell_for_point(pt.x, pt.y, origin_x, origin_y, width, height)
+                if cell not in occupied:
+                    occupied[cell] = [line.project(Point(pt.x, pt.y))]
+                    added = True
+        if not added:
+            for geom in _iter_line_geometries(uncovered):
+                coords = list(geom.coords)
+                if not coords:
+                    continue
+                x, y = coords[0][:2]
+                cell = _cell_for_point(float(x), float(y), origin_x, origin_y, width, height)
+                if cell not in occupied:
+                    occupied[cell] = [line.project(Point(float(x), float(y)))]
+                    added = True
+                    break
+            if not added:
+                return occupied
+
+        safety_passes += 1
+        if safety_passes > 32:
+            return occupied
+
+
+def place_minimum_coverage_sheets(
+    branch_index: int,
+    line: LineString,
+    config: dict[str, Any],
+    start_number: int,
+    angle: float,
+) -> tuple[list[Sheet], list[str]]:
+    """Deterministic minimum-sheet coverage on an axis-aligned grid."""
+    width = float(config["sheet_width_ft"])
+    height = float(config["sheet_height_ft"])
+    samples = _route_sample_points(line, max(1.0, float(config["sample_interval_ft"])))
+    if not samples:
+        return [], []
+
+    sample_xs = sorted({_grid_residue(x, width) for _station, x, _y in samples})
+    sample_ys = sorted({_grid_residue(y, height) for _station, _x, y in samples})
+    if not sample_xs:
+        sample_xs = [0.0]
+    if not sample_ys:
+        sample_ys = [0.0]
+
+    bbox = line.bounds
+    route_center_x = (bbox[0] + bbox[2]) / 2.0
+    route_center_y = (bbox[1] + bbox[3]) / 2.0
+
+    best_origin: tuple[float, float] | None = None
+    best_cells: OrderedDict[tuple[int, int], list[float]] | None = None
+    best_score: tuple[int, float, float, float] | None = None
+
+    for origin_x in sample_xs:
+        for origin_y in sample_ys:
+            occupied = _occupied_cells_for_origin(line, config, origin_x, origin_y, width, height)
+            score = (
+                len(occupied),
+                abs((origin_x + width / 2.0) - route_center_x) + abs((origin_y + height / 2.0) - route_center_y),
+                origin_x,
+                origin_y,
+            )
+            if best_score is None or score < best_score:
+                best_score = score
+                best_origin = (origin_x, origin_y)
+                best_cells = occupied
+
+    if best_origin is None or best_cells is None:
+        return [], []
+
+    origin_x, origin_y = best_origin
+    occupied = _fill_uncovered_cells(line, config, origin_x, origin_y, width, height, best_cells)
+
+    ordered_cells: list[tuple[tuple[int, int], list[float]]] = sorted(
+        occupied.items(),
+        key=lambda item: (
+            min(item[1]) if item[1] else 0.0,
+            item[0][1],
+            item[0][0],
+        ),
+    )
+
+    sheets: list[Sheet] = []
+    for index, (cell, station_list) in enumerate(ordered_cells, 1):
+        sheet = _sheet_for_cell(branch_index, f"S{start_number + index - 1:03d}", cell, origin_x, origin_y, width, height)
+        start_station, end_station = _station_range_for_sheet(line, sheet)
+        sheet.start_station = start_station
+        sheet.end_station = end_station
+        sheets.append(sheet)
+
+    return sheets, route_uncovered_points(line, sheets, config)
+
+
+def plan_line_grid(
+    branch_index: int,
+    line: LineString,
+    config: dict[str, Any],
+    start_number: int,
+    angle: float | None = None,
+) -> tuple[list[Sheet], list[str]]:
+    width = float(config["sheet_width_ft"])
+    height = float(config["sheet_height_ft"])
+    angle = math.radians(float(config["fixed_sheet_angle_deg"])) if angle is None else angle
+    endpoint_ratio = min(max(float(config["endpoint_inset_ratio"]), 0.5), 0.9)
+    overlap = max(0.0, float(config.get("overlap_ft", 0.0)))
+    column_step = max(width - overlap, 1.0)
+    row_step = max(height - overlap, 1.0)
+
+    samples = corridor_sample_points(line, config, angle)
+    if not samples:
+        return [], []
+
+    min_s = min(s for s, _ in samples)
+    max_s = max(s for s, _ in samples)
+    min_t = min(t for _, t in samples)
+    max_t = max(t for _, t in samples)
+
+    row_count = max(1, math.ceil((max_t - min_t) / row_step))
+    row_span = row_count * row_step
+    grid_bottom = min_t - ((row_span - (max_t - min_t)) / 2.0)
+    grid_left = min_s - (endpoint_ratio * width)
+
+    cells: OrderedDict[tuple[int, int], None] = OrderedDict()
+    for s, t in samples:
+        ix = math.floor((s - grid_left) / column_step)
+        iy = math.floor((t - grid_bottom) / row_step)
+        cells.setdefault((ix, iy), None)
 
     sheets: list[Sheet] = []
     for index, (ix, iy) in enumerate(cells.keys()):
-        center_s = grid_left + ix * width + width / 2.0
-        center_t = grid_bottom + iy * height + height / 2.0
+        center_s = grid_left + ix * column_step + width / 2.0
+        center_t = grid_bottom + iy * row_step + height / 2.0
         x, y = world_from_axis(center_s, center_t, angle)
-        sheets.append(make_sheet_at_center(f"S{start_number + index:03d}", branch_index, x, y, angle, width, height))
+        sheets.append(
+            make_sheet_at_center(
+                f"S{start_number + index:03d}",
+                branch_index,
+                x,
+                y,
+                angle,
+                width,
+                height,
+                start_station=center_s - width / 2.0,
+                end_station=center_s + width / 2.0,
+            )
+        )
 
-    return sheets, corridor_uncovered_points(line, sheets, config)
+    return sheets, corridor_uncovered_points(line, sheets, config, angle=angle)
 
 
-def corridor_uncovered_points(line: LineString, sheets: list[Sheet], config: dict[str, Any]) -> list[str]:
-    interval = float(config["sample_interval_ft"])
-    left = max(0.0, float(config["road_buffer_left_ft"]))
-    right = max(0.0, float(config["road_buffer_right_ft"]))
+def corridor_uncovered_points(
+    line: LineString,
+    sheets: list[Sheet],
+    config: dict[str, Any],
+    angle: float,
+) -> list[str]:
     clearance = max(0.0, float(config["required_edge_clearance_ft"]))
-    offset_interval = max(interval, min(left or interval, right or interval, interval))
-
     sheet_polygons = [sheet_polygon(sheet) for sheet in sheets]
     if clearance > 0.0:
         sheet_polygons = [poly.buffer(-clearance) for poly in sheet_polygons]
     sheet_polygons = [poly for poly in sheet_polygons if not poly.is_empty]
 
     uncovered: list[str] = []
-    for station in sample_stations(line.length, interval):
-        for offset in sample_offsets(left, right, offset_interval):
-            pt = offset_point(line, station, offset)
-            if not any(poly.covers(pt) for poly in sheet_polygons):
-                uncovered.append(f"{station:.1f}@{offset:.1f}")
-                break
+    sample_points = corridor_sample_points(line, config, angle)
+    for index, (s, t) in enumerate(sample_points):
+        pt = Point(*world_from_axis(s, t, angle))
+        if not any(poly.covers(pt) for poly in sheet_polygons):
+            uncovered.append(f"{index}:{s:.1f}@{t:.1f}")
+    return uncovered
+
+
+def route_uncovered_points(
+    line: LineString,
+    sheets: list[Sheet],
+    config: dict[str, Any],
+) -> list[str]:
+    sample_interval = max(1.0, float(config["sample_interval_ft"]))
+    sheet_polygons = [sheet_polygon(sheet) for sheet in sheets]
+    sheet_union = unary_union(sheet_polygons) if sheet_polygons else None
+    uncovered: list[str] = []
+    for index, station in enumerate(sample_stations(line.length, sample_interval)):
+        pt = line.interpolate(station)
+        if sheet_union is None or not sheet_union.covers(pt):
+            uncovered.append(f"{index}:{pt.x:.1f},{pt.y:.1f}")
     return uncovered
 
 
@@ -588,35 +1003,38 @@ def filter_empty_sheets(sheets: list[Sheet], line: LineString,
 
 
 def plan_line(branch_index: int, line: LineString, config: dict[str, Any], start_number: int) -> tuple[list[Sheet], list[str]]:
-    # Placement mode: "follow_route" (per-station tangent, staggered) is default.
-    # Set placement_mode = "grid" in config to use the older axis-aligned grid.
-    mode = str(config.get("placement_mode", "follow_route")).lower()
-    if mode == "grid" and "fixed_sheet_angle_deg" in config:
-        return plan_line_grid(branch_index, line, config, start_number)
+    return plan_line_minimum_coverage(branch_index, line, config, start_number)
 
-    width          = float(config["sheet_width_ft"])
-    overlap        = float(config["overlap_ft"])
-    endpoint_ratio = float(config["endpoint_inset_ratio"])
-    bend_thresh    = float(config.get("bend_threshold_deg", 25.0))
-    bend_clear     = float(config.get("bend_clearance_ft", 50.0))
 
-    # 1) initial evenly-spaced stations along the route
-    stations = initial_stations(line.length, width, overlap, endpoint_ratio)
+def plan_line_minimum_coverage(
+    branch_index: int,
+    line: LineString,
+    config: dict[str, Any],
+    start_number: int,
+) -> tuple[list[Sheet], list[str]]:
+    sheets, warnings = place_minimum_coverage_sheets(branch_index, line, config, start_number, 0.0)
+    return sheets, warnings
 
-    # 2) Rule 2: keep sheet boundaries >= 50' from any bend in the route
-    bends = find_bend_stations(line, bend_thresh)
-    stations = adjust_stations_for_bends(stations, bends, line.length, bend_clear)
 
-    # 3) build sheets, each rotated to the route tangent at its center
-    sheets = [
-        make_sheet(f"S{start_number + i:03d}", branch_index, line, st, config)
-        for i, st in enumerate(stations)
-    ]
+def plan_route_sheets_kmz(
+    parts: list[RoutePart],
+    config: dict[str, Any],
+    start_number: int = 1,
+) -> list[Sheet]:
+    merged_lines = merge_touching_parts(parts)
+    if len(merged_lines) == 0:
+        return []
+    if len(merged_lines) == 1:
+        sheets, _warnings = plan_line_minimum_coverage(1, merged_lines[0][1], config, start_number)
+        return sheets
 
-    # 4) Rule 1: drop sheets the route does not actually pass through
-    sheets = filter_empty_sheets(sheets, line)
-
-    return sheets, corridor_uncovered_points(line, sheets, config)
+    sheets: list[Sheet] = []
+    next_number = start_number
+    for branch_index, (_name, line) in enumerate(merged_lines, 1):
+        branch_sheets, _warnings = plan_line_minimum_coverage(branch_index, line, config, next_number)
+        sheets.extend(branch_sheets)
+        next_number += len(branch_sheets)
+    return sheets
 
 
 def renumber_sheets(sheets: list[Sheet]) -> None:

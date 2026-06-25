@@ -41,6 +41,10 @@ Run: `pytest 05_toolkit/python/tests/ -v`
 
 Every new module requires at least one test before merging.
 
+## Mandatory status logging
+- After any meaningful Python test, fix, regression, or validation result, update `04_documentation/TOOLKIT_STATUS.md` before ending the session.
+- Log the exact script names touched, the status (`working`, `partial`, `broken`, `untested`, `regressed`), what was tested, known limitations, and the next action.
+
 ## File inventory
 | File | Purpose |
 |---|---|

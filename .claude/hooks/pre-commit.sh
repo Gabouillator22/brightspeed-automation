@@ -12,10 +12,14 @@ echo "=== pre-commit: running checks ==="
 STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' || true)
 if [ -n "$STAGED_PY" ]; then
   echo "--- ruff ---"
-  echo "$STAGED_PY" | xargs ruff check --quiet 2>/dev/null || {
-    echo "FAIL: ruff found issues. Run: ruff check --fix"
-    exit 1
-  }
+  if command -v ruff &>/dev/null; then
+    echo "$STAGED_PY" | xargs ruff check --quiet 2>/dev/null || {
+      echo "FAIL: ruff found issues. Run: ruff check --fix"
+      exit 1
+    }
+  else
+    echo "SKIP: ruff not found in PATH"
+  fi
 fi
 
 # 2. Paren balance on staged .lsp files

@@ -219,6 +219,10 @@
 ;; Core ROW workflow (v5.1 = latest with TRAP direction bug fix)
 (bs-load-file "bsrow.lsp")
 
+;; Property line snapper should load before parcel cleanup so it survives
+;; any later parcel-file load failure.
+(bs-load-file "bsparsnap.lsp")
+
 ;; Corner filleting
 (bs-load-file "bsfillet_all.lsp")
 
@@ -248,9 +252,6 @@
 
 ;; Parcel cleanup (depends on bsrow.lsp for ROW-TRAP layer)
 (bs-load-file "bsparcels.lsp")
-
-;; Snap perpendicular property line endpoints to ROW
-(bs-load-file "bsparsnap.lsp")
 
 ;; Road cross-section dimension arrows
 (bs-load-file "bsrowdims.lsp")
@@ -289,6 +290,7 @@
 (princ "\n  COMMANDS — FIBER CALLOUTS:")
 (princ "\n  BSCALLOUT     - Buried fiber callout (pick fiber + point)")
 (princ "\n  BSCALLOUT-AUTO- Auto-callout all BURIED FIBER IN DUCT")
+(princ "\n  BSCALLOUT-END-AUTO - Auto-callout buried fiber with arrows snapped to endpoints")
 (princ "\n  BSAERIAL      - Aerial fiber callout (pick fiber + point)")
 (princ "\n  BSAERIAL-AUTO - Auto-callout all AERIAL FIBER + ELASH")
 (princ "\n  BSCALLOUTS-RUN        - Sheet-aware structures + buried + aerial callouts")
@@ -296,6 +298,7 @@
 (princ "\n  BSCALLOUTS-BURIED     - Buried fiber segment multileader callouts")
 (princ "\n  BSCALLOUTS-AERIAL     - Aerial callouts + AUBS footage markers")
 (princ "\n  BSCALLOUTS-AUDIT      - Count callout source objects")
+(princ "\n  BSCALLOUTS-CLEAN      - Remove temporary forced-callout review/guide layers")
 (princ "\n")
 (princ "\n  COMMANDS — LABELING:")
 (princ "\n  BSSTATION     - Auto-station HH/borepits/poles")

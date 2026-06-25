@@ -10,89 +10,11 @@
 ;;;   - Candidates gathered with crossing-window ssget (border-local)
 ;;;   - Stack direction driven by border centroid (always faces interior)
 ;;;
-;;; Standalone bootstrap:
-;;;   Uses bs_helpers.lsp helpers when already loaded, otherwise defines
-;;;   the minimal local fallback helpers needed for direct APPLOAD use.
+;;; Depends on: bs_helpers.lsp (loaded by bs_loader.lsp)
 ;;; AutoCAD Map 3D 2027
 ;;; ============================================================
 
 (vl-load-com)
-
-;;; ============================================================
-;;; Standalone bootstrap
-;;; ============================================================
-
-(if (not (fboundp 'bs-ensure-layer))
-  (defun bs-ensure-layer (lname lcolor / )
-    (if (not (tblsearch "LAYER" lname))
-      (command-s "_.LAYER" "_N" lname "_C" (itoa lcolor) lname ""))
-    (command-s "_.LAYER" "_ON" lname "_T" lname "")
-    (princ)))
-
-(if (not (fboundp 'bs-vsub))
-  (defun bs-vsub (p1 p2)
-    (list (- (car p1) (car p2)) (- (cadr p1) (cadr p2)) 0.0)))
-
-(if (not (fboundp 'bs-vadd))
-  (defun bs-vadd (p1 p2)
-    (list (+ (car p1) (car p2)) (+ (cadr p1) (cadr p2)) 0.0)))
-
-(if (not (fboundp 'bs-vscale))
-  (defun bs-vscale (v s)
-    (list (* (car v) s) (* (cadr v) s) 0.0)))
-
-(if (not (fboundp 'bs-vdot))
-  (defun bs-vdot (v1 v2)
-    (+ (* (car v1) (car v2)) (* (cadr v1) (cadr v2)))))
-
-(if (not (fboundp 'bs-vlen))
-  (defun bs-vlen (v)
-    (sqrt (+ (* (car v) (car v)) (* (cadr v) (cadr v))))))
-
-(if (not (fboundp 'bs-vunit))
-  (defun bs-vunit (v / len)
-    (setq len (bs-vlen v))
-    (if (> len 0.000001)
-      (list (/ (car v) len) (/ (cadr v) len) 0.0)
-      nil)))
-
-(if (not (fboundp 'bs-vperp-right))
-  (defun bs-vperp-right (v)
-    (list (cadr v) (- (car v)) 0.0)))
-
-(if (not (fboundp 'bs-midpt-2))
-  (defun bs-midpt-2 (p1 p2)
-    (mapcar '(lambda (a b) (/ (+ a b) 2.0)) p1 p2)))
-
-(if (not (fboundp 'bs-ent-midpt))
-  (defun bs-ent-midpt (ent / etype)
-    (setq etype (cdr (assoc 0 (entget ent))))
-    (cond
-      ((= etype "LINE")
-       (bs-midpt-2 (cdr (assoc 10 (entget ent)))
-                   (cdr (assoc 11 (entget ent)))))
-      ((or (= etype "LWPOLYLINE") (= etype "POLYLINE"))
-       (vl-catch-all-apply 'vlax-curve-getPointAtParam
-                           (list ent (/ (vlax-curve-getEndParam ent) 2.0))))
-      (T nil))))
-
-(if (not (fboundp 'bs-tangent-at-pt))
-  (defun bs-tangent-at-pt (ent pt / etype cp param deriv)
-    (setq etype (cdr (assoc 0 (entget ent))))
-    (cond
-      ((= etype "LINE")
-       (bs-vunit (bs-vsub (cdr (assoc 11 (entget ent)))
-                          (cdr (assoc 10 (entget ent))))))
-      ((or (= etype "LWPOLYLINE") (= etype "POLYLINE"))
-       (setq cp (vl-catch-all-apply 'vlax-curve-getClosestPointTo (list ent pt)))
-       (if (vl-catch-all-error-p cp) nil
-         (progn
-           (setq param (vl-catch-all-apply 'vlax-curve-getParamAtPoint (list ent cp)))
-           (if (vl-catch-all-error-p param) nil
-             (progn
-               (setq deriv (vl-catch-all-apply 'vlax-curve-getFirstDeriv (list ent param)))
-               (if (vl-catch-all-error-p deriv) nil (bs-vunit deriv)))))))
-      (T nil))))
 
 ;;; ============================================================
 ;;; Shared geometry helpers
@@ -105,7 +27,6 @@
 (setq bsrd-curve-types "LINE,LWPOLYLINE,POLYLINE,ARC,SPLINE")
 (setq bsrd-guide-layer "BS-DIM-GUIDE")
 (setq bsrd-measure-tolerance 5.0)
-(setq bsrd-build-tag "2026-06-09 standalone+undo+dimstylefix")
 
 (defun bsrd-flat (p)
   (if (and p (listp p) (>= (length p) 2))
@@ -662,7 +583,7 @@
 
 (defun bsrd-hide-guides ( / )
   (if (tblsearch "LAYER" bsrd-guide-layer)
-    (vl-catch-all-apply 'command-s (list "_.LAYER" "F" bsrd-guide-layer "")))
+    (command "_.LAYER" "F" bsrd-guide-layer ""))
   (princ)
 )
 
@@ -719,12 +640,7 @@
 
 (defun bsrd-restore-env (env)
   (foreach pair env
-    (cond
-      ((= (car pair) "DIMSTYLE")
-       (if (and (cdr pair) (tblsearch "DIMSTYLE" (cdr pair)))
-         (vl-catch-all-apply 'command-s (list "_.-DIMSTYLE" "_Restore" (cdr pair)))))
-      (T
-       (vl-catch-all-apply 'setvar (list (car pair) (cdr pair)))))))
+    (vl-catch-all-apply 'setvar (list (car pair) (cdr pair)))))
 
 (defun bsrd-setup ()
   (setvar "CMDECHO" 0)
@@ -734,57 +650,21 @@
   (if (tblsearch "DIMSTYLE" "SQUAN 60")
     (vl-catch-all-apply 'command-s (list "_.-DIMSTYLE" "_Restore" "SQUAN 60"))))
 
-(defun bsrd-undo-begin ()
-  (vl-catch-all-apply 'command-s (list "_.UNDO" "_BEGIN")))
-
-(defun bsrd-undo-end (undo-open)
-  (if undo-open
-    (vl-catch-all-apply 'command-s (list "_.UNDO" "_END"))))
-
-(defun bsrd-yesno (value)
-  (if value "yes" "no"))
-
-(defun c:BSROWDIMS-SESSIONDIAG ( / dimstyle squan60)
-  (setq dimstyle (getvar "DIMSTYLE"))
-  (setq squan60  (tblsearch "DIMSTYLE" "SQUAN 60"))
-  (princ "\n[BSROWDIMS-SESSIONDIAG] Active session diagnostic")
-  (princ (strcat "\n  build tag        : " bsrd-build-tag))
-  (princ (strcat "\n  current DIMSTYLE : " (if dimstyle dimstyle "<nil>")))
-  (princ (strcat "\n  has SQUAN 60     : " (bsrd-yesno squan60)))
-  (princ (strcat "\n  standalone mode  : " (bsrd-yesno (and (boundp 'bsrd-build-tag) bsrd-build-tag))))
-  (princ (strcat "\n  undo helper      : " (bsrd-yesno (fboundp 'bsrd-undo-begin))))
-  (princ (strcat "\n  helper bs-vsub   : " (bsrd-yesno (fboundp 'bs-vsub))))
-  (princ (strcat "\n  helper bs-ensure-layer: " (bsrd-yesno (fboundp 'bs-ensure-layer))))
-  (princ (strcat "\n  command BSROWDIMS1: " (bsrd-yesno (fboundp 'c:BSROWDIMS1))))
-  (princ "\n  expected current variant traits:")
-  (princ "\n    - standalone bootstrap present")
-  (princ "\n    - DIMSTYLE restore uses -DIMSTYLE Restore, not setvar")
-  (princ "\n    - *error* UNDO cleanup uses guarded command-s helper")
-  (princ "\n  comparison to prior working snapshot:")
-  (princ "\n    - geometry core unchanged")
-  (princ "\n    - added standalone bootstrap")
-  (princ "\n    - changed guide hide to command-s")
-  (princ "\n    - changed DIMSTYLE restore path")
-  (princ "\n    - changed error/UNDO handling")
-  (princ))
-
 ;;; ============================================================
 ;;; Commands
 ;;; ============================================================
 
 ;;; BSROWDIMS — dimension every BORDER rectangle in drawing
-(defun c:BSROWDIMS ( / *error* env ss i ent cnt undo-open)
+(defun c:BSROWDIMS ( / *error* env ss i ent cnt)
   (defun *error* (msg)
-    (bsrd-undo-end undo-open)
+    (command "_.UNDO" "_END")
     (bsrd-restore-env env)
     (if (not (member msg '("Function cancelled" "quit / exit abort")))
       (princ (strcat "\n[BSROWDIMS] Error: " msg)))
     (princ))
   (setq env (bsrd-save-env))
-  (setq undo-open nil)
   (bsrd-setup)
-  (bsrd-undo-begin)
-  (setq undo-open T)
+  (command "_.UNDO" "_BEGIN")
   (setq cnt 0)
   (princ "\n[BSROWDIMS] Scanning BORDER layer...")
   (setq ss (ssget "_X" '((0 . "LWPOLYLINE,POLYLINE") (8 . "BORDER"))))
@@ -801,21 +681,19 @@
       (setq ss nil)
       (princ (strcat "\n[BSROWDIMS] Done. Processed " (itoa cnt) " border(s)."))))
   (bsrd-hide-guides)
-  (bsrd-undo-end undo-open)
-  (setq undo-open nil)
+  (command "_.UNDO" "_END")
   (bsrd-restore-env env)
   (princ))
 
 ;;; BSROWDIMS1 — pick one BORDER rectangle (must be in model space)
-(defun c:BSROWDIMS1 ( / *error* env sel ent edata lyr undo-open)
+(defun c:BSROWDIMS1 ( / *error* env sel ent edata lyr)
   (defun *error* (msg)
-    (bsrd-undo-end undo-open)
+    (command "_.UNDO" "_END")
     (bsrd-restore-env env)
     (if (not (member msg '("Function cancelled" "quit / exit abort")))
       (princ (strcat "\n[BSROWDIMS1] Error: " msg)))
     (princ))
   (setq env (bsrd-save-env))
-  (setq undo-open nil)
   ;; Paper space guard: entsel cannot reach model-space BORDER entities
   (if (= (getvar "CVPORT") 1)
     (progn
@@ -840,13 +718,11 @@
             (princ (strcat "\n[BSROWDIMS1] Layer \"" lyr "\" is not BORDER — expected BORDER layer.")))
            (T
             (bsrd-setup)
-            (bsrd-undo-begin)
-            (setq undo-open T)
+            (command "_.UNDO" "_BEGIN")
             (princ "\n[BSROWDIMS1] Processing selected border...")
             (vl-catch-all-apply 'bsrd-process-border-v2 (list ent))
             (bsrd-hide-guides)
-            (bsrd-undo-end undo-open)
-            (setq undo-open nil)
+            (command "_.UNDO" "_END")
             (princ "\n[BSROWDIMS1] Done.")))))))
   (bsrd-restore-env env)
   (princ))
@@ -878,15 +754,14 @@
   found)
 
 (defun c:BSROWDIMSC ( / *error* env sel cl-ent edata lyr border bb mn mx cx cy centroid
-                         row-cands eop-cands fiber-cands undo-open)
+                         row-cands eop-cands fiber-cands)
   (defun *error* (msg)
-    (bsrd-undo-end undo-open)
+    (command "_.UNDO" "_END")
     (bsrd-restore-env env)
     (if (not (member msg '("Function cancelled" "quit / exit abort")))
       (princ (strcat "\n[BSROWDIMSC] Error: " msg)))
     (princ))
   (setq env (bsrd-save-env))
-  (setq undo-open nil)
   (if (= (getvar "CVPORT") 1)
     (progn
       (princ "\n[BSROWDIMSC] You are in PAPER SPACE.")
@@ -912,8 +787,7 @@
                (princ "\n[BSROWDIMSC] No BORDER rectangle contains this centerline's midpoint."))
               (T
                (bsrd-setup)
-               (bsrd-undo-begin)
-               (setq undo-open T)
+               (command "_.UNDO" "_BEGIN")
                (setq bb (bsrd-bbox border))
                (setq mn (car bb) mx (cadr bb))
                (setq cx       (/ (+ (car mn)  (car mx))  2.0)
@@ -926,8 +800,7 @@
                (vl-catch-all-apply 'bsrd-process-cl-v2
                  (list cl-ent bb centroid row-cands eop-cands fiber-cands))
                (bsrd-hide-guides)
-               (bsrd-undo-end undo-open)
-               (setq undo-open nil)
+               (command "_.UNDO" "_END")
                (princ "\n[BSROWDIMSC] Done.")))))))))
   (bsrd-restore-env env)
   (princ))
@@ -984,5 +857,5 @@
 (defun c:BSDIMC ( / ) (c:BSROWDIMSC))
 (defun c:BSDIAG ( / ) (c:BSROWDIMS-DIAG))
 
-(princ (strcat "\n[BSROWDIMS] v9 Loaded (" bsrd-build-tag "). Straight ROW split restored; curve-only verified centerline snap. Commands: BSDIMS / BSDIM1 / BSDIMC / BSDIAG / BSROWDIMS / BSROWDIMS-SESSIONDIAG"))
+(princ "\n[BSROWDIMS] v9 Loaded. Straight ROW split restored; curve-only verified centerline snap. Commands: BSDIMS / BSDIM1 / BSDIMC / BSDIAG / BSROWDIMS")
 (princ)

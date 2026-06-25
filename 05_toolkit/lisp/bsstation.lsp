@@ -1,92 +1,89 @@
 ;;; ============================================================
-;;; BSSTATION - Auto-station HH, borepits, and poles
+;;; BSSTATION - Auto-station HH, bore pits, and POLE/RISER only
 ;;;
-;;; Scans all INSERT (block) entities in the drawing.
+;;; Scans INSERT (block) entities in the drawing.
 ;;; Matches block names containing any of these substrings
-;;; (case-insensitive):  HANDHOLE  HH  BORE  BOREPIT  POLE
+;;; (case-insensitive):  HANDHOLE  HH  BORE  BOREPIT  POLE + RISER
 ;;;
 ;;; For each matched block:
-;;;   1. Find the nearest fiber polyline (BURIED FIBER IN DUCT or AERIAL FIBER).
-;;;   2. Get the distance from the fiber's start to the closest point on
-;;;      the fiber — this is the station value in feet.
+;;;   1. Pick the correct technology chain.
+;;;      - handhole/bore pit -> buried fiber
+;;;      - pole with riser    -> aerial fiber
+;;;   2. Compute cumulative station along that chain.
 ;;;   3. Place a TEXT entity "STA XX+XX.X" at the block insertion point,
 ;;;      offset 5' to the right of the block.
 ;;;
 ;;; Note on station 0+00:
-;;;   Station is measured from the START vertex of the nearest fiber line.
-;;;   If fiber direction is reversed vs field convention, run PEDIT -> Reverse
-;;;   on the fiber polyline before running BSSTATION.
+;;;   Station is measured from the START vertex of the selected technology
+;;;   chain. Buried and aerial stationing reset independently.
 ;;;
 ;;; Text height  : 5.0
 ;;; Layer        : STATIONING
 ;;; Safety       : Adds TEXT entities only. No deletes. Undo-safe.
 ;;; ============================================================
 
-(defun c:BSSTATION ( / old-cmdecho old-layer
-                       ss-blocks ss-fiber
-                       i block-ent block-name bname-up ins-pt
-                       nearest-fiber closest-pt dist-along
-                       station-txt text-pt
-                       placed-count skip-count keywords)
+(vl-load-com)
 
-  (vl-load-com)
+(defun c:BSSTATION ( / *error* old-cmdecho old-layer
+                       ss-blocks
+                       i block-ent block-name bname-up ins-pt
+                       structure-kind curves dist-along
+                       station-txt text-pt
+                       placed-count skip-count)
+
   (setq old-cmdecho (getvar "CMDECHO"))
   (setq old-layer   (getvar "CLAYER"))
+
+  (defun *error* (msg)
+    (if (= 8 (logand 8 (getvar "UNDOCTL")))
+      (command "_.UNDO" "_E"))
+    (if old-cmdecho (setvar "CMDECHO" old-cmdecho))
+    (if old-layer (setvar "CLAYER" old-layer))
+    (if (and msg (/= (strcase msg) "*CANCEL*"))
+      (princ (strcat "\n[BSSTATION] ERROR: " msg)))
+    (princ))
+
   (setvar "CMDECHO" 0)
+  (command "_.UNDO" "_BE")
 
   (bs-ensure-layer "STATIONING" 7)
 
-  ;; Keywords that identify fiber-related structure blocks
-  (setq keywords '("HANDHOLE" "HH" "BORE" "BOREPIT" "POLE"))
-
-  (princ "\n[BSSTATION] Scanning blocks for HH/bore pit/pole matches...")
+  (princ "\n[BSSTATION] Scanning blocks for HH/bore pit/POLE-RISER matches...")
 
   ;; Collect all INSERT entities
   (setq ss-blocks (ssget "X" '((0 . "INSERT"))))
 
-  ;; Collect all fiber lines as reference for station measurement
-  (setq ss-fiber
-    (ssget "X"
-      '((0 . "LWPOLYLINE,POLYLINE")
-        (-4 . "<OR")
-          (8 . "BURIED FIBER IN DUCT")
-          (8 . "AERIAL FIBER")
-        (-4 . "OR>"))))
-
   (if (not ss-blocks)
     (progn
       (princ "\n[BSSTATION] No block inserts found in drawing. Aborting.")
+      (command "_.UNDO" "_E")
       (setvar "CMDECHO" old-cmdecho)
       (setvar "CLAYER" old-layer))
     (progn
-      (if (not ss-fiber)
-        (princ "\n[BSSTATION] WARNING: No fiber polylines found. Stations will show 0."))
-
       (setq placed-count 0 skip-count 0)
-
       (setq i 0)
       (while (< i (sslength ss-blocks))
         (setq block-ent  (ssname ss-blocks i))
         (setq block-name (cdr (assoc 2 (entget block-ent))))
         (setq bname-up   (strcase block-name))
 
-        ;; Check if block name contains any keyword (substring match)
-        (if (bsst-matches-any-keyword bname-up keywords)
+        ;; Only station handholes, bore pits, and poles that explicitly have risers.
+        (setq structure-kind (bsst-structure-kind bname-up))
+        (if structure-kind
           (progn
             (setq ins-pt (cdr (assoc 10 (entget block-ent))))
             ;; Ensure z=0
             (setq ins-pt (list (car ins-pt) (cadr ins-pt) 0.0))
 
-            ;; Find station along nearest fiber
-            (if ss-fiber
-              (progn
-                (setq nearest-fiber (bs-nearest-ent-in-ss ins-pt ss-fiber))
-                (setq dist-along (bsst-dist-along-fiber ins-pt nearest-fiber))
-              )
-              (setq dist-along 0.0)
-            )
+            ;; Use the correct technology chain so buried and aerial stations reset independently.
+            (setq curves (bsst-curves-for-structure-kind structure-kind))
+            (setq dist-along
+              (if curves
+                (bsca-cumulative-station ins-pt curves)
+                0.0))
 
-            (setq station-txt (bs-format-station dist-along))
+            ;; Use the same whole-foot station formatter as the callout system.
+            (setq station-txt (bsca-format-sta dist-along))
 
             ;; Place text 5' to the right of block insertion
             (setq text-pt
@@ -103,6 +100,7 @@
         (setq i (1+ i))
       )
 
+      (command "_.UNDO" "_E")
       (setvar "CMDECHO" old-cmdecho)
       (setvar "CLAYER" old-layer)
       (princ "\n")
@@ -110,7 +108,7 @@
       (princ (strcat "\n  Station labels placed : " (itoa placed-count)))
       (princ (strcat "\n  Blocks skipped        : " (itoa skip-count)))
       (princ "\n  Layer: STATIONING")
-      (princ "\n  Station 0+00 = start vertex of nearest fiber line.")
+      (princ "\n  Station 0+00 = start vertex of the selected technology chain.")
       (princ "\n  Use PEDIT -> Reverse on fiber if stationing runs backward.")
       (princ "\n[BSSTATION] =========================")
     )
@@ -122,25 +120,28 @@
 ;;; Private helpers
 ;;; ---------------------------------------------------------------
 
-(defun bsst-matches-any-keyword (block-name-upper keywords / kw match)
-  ;; T if block-name-upper contains any keyword string as a substring.
-  (setq match nil)
-  (foreach kw keywords
-    (if (vl-string-search kw block-name-upper)
-      (setq match T)))
-  match)
+(defun bsst-structure-kind (block-name-upper / )
+  ;; Returns "BUR" for handholes/bore pits, "AIR" for POLE/RISER, else nil.
+  (cond
+    ((or (vl-string-search "HANDHOLE" block-name-upper)
+         (vl-string-search "BORE" block-name-upper)
+         (vl-string-search "BOREPIT" block-name-upper)
+         (and (vl-string-search "HH" block-name-upper)
+              (not (vl-string-search "POLE" block-name-upper))))
+      "BUR")
+    ((and (vl-string-search "POLE" block-name-upper)
+          (vl-string-search "RISER" block-name-upper))
+      "AIR")
+    (T nil)))
 
-(defun bsst-dist-along-fiber (pt fiber-ent / cp dist-val)
-  ;; Get arc-length distance from start of fiber to the closest point on fiber to pt.
-  ;; Returns 0.0 on any failure.
-  (setq cp
-    (vl-catch-all-apply 'vlax-curve-getClosestPointTo (list fiber-ent pt)))
-  (if (vl-catch-all-error-p cp)
-    0.0
-    (progn
-      (setq dist-val
-        (vl-catch-all-apply 'vlax-curve-getDistAtPoint (list fiber-ent cp)))
-      (if (vl-catch-all-error-p dist-val) 0.0 dist-val))))
+(defun bsst-curves-for-structure-kind (kind / )
+  ;; Use the correct technology chain so stationing resets between buried and aerial.
+  (cond
+    ((= kind "BUR")
+      (bsca-curves-on-layers (list "BURIED FIBER IN DUCT")))
+    ((= kind "AIR")
+      (bsca-curves-on-layers (list "AERIAL FIBER" "ELASH")))
+    (T nil)))
 
-(princ "\n[BSSTATION] Loaded. Type BSSTATION to auto-station HH/borepits/poles.")
+(princ "\n[BSSTATION] Loaded. Type BSSTATION to auto-station HH/bore pits/POLE-RISER.")
 (princ)

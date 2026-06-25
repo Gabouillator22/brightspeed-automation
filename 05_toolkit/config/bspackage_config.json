@@ -1,0 +1,52 @@
+{
+  "plan_template_layout": "2",
+  "number_layer": "BORDER",
+  "sheet_rectangle_layers": [
+    "BS-SHEET-PROPOSED",
+    "BORDER"
+  ],
+  "hidden_layer": "BS-SHEET-HIDDEN",
+  "output_suffix": "_PACKAGED",
+  "viewport_padding_ft": 50.0,
+  "require_clean_index": true,
+  "layout_name_mode": "sheet_number",
+  "allow_sheet_number_gaps": false,
+  "freeze_border_in_plan_viewports": true,
+  "sheet_map_layouts": [
+    "1",
+    "Map",
+    "MAP"
+  ],
+  "profile_layouts": [],
+  "max_pages_per_permit": 25,
+  "sectioning_enabled": false,
+  "first_plan_page_in_section": 2,
+  "plan_slots_per_full_section": 24,
+  "titleblock_update_enabled": true,
+  "titleblock_block_name_patterns": [
+    "*TITLE*",
+    "*BORDER*",
+    "*SQUAN*",
+    "*BRIGHTSPEED*"
+  ],
+  "titleblock_sheet_attribute_tags": [
+    "SHEET",
+    "SHT",
+    "SHEET_NO",
+    "SHEET_NUMBER",
+    "PAGE"
+  ],
+  "titleblock_total_attribute_tags": [
+    "OF",
+    "TOTAL",
+    "TOTAL_SHEETS",
+    "SHEET_TOTAL"
+  ],
+  "titleblock_project_attribute_tags": [
+    "PROJECT",
+    "PROJECT_NO",
+    "PERMIT",
+    "PERMIT_NO"
+  ],
+  "dry_run_default": true
+}

@@ -56,6 +56,28 @@
       (entupd ent)))
   (princ))
 
+(defun bssheet-clear-generated-sheet-entities ( / ss i ent moved)
+  ;; Safe cleanup: only generated proposed-sheet layers are removed; BORDER stays intact.
+  (setq moved 0)
+  (setq ss
+    (ssget "_X"
+      (list
+        '(-4 . "<OR")
+        (cons 8 *bssheet-proposed-layer*)
+        (cons 8 *bssheet-label-layer*)
+        '(-4 . "OR>"))))
+  (if ss
+    (progn
+      (setq i 0)
+      (while (< i (sslength ss))
+        (setq ent (ssname ss i))
+        (if (and ent (entget ent))
+          (progn
+            (entdel ent)
+            (setq moved (1+ moved))))
+        (setq i (1+ i)))))
+  moved)
+
 (defun bssheet-split (s sep / lst cur i slen seplen)
   (setq lst '() cur "" i 1 slen (strlen s) seplen (strlen sep))
   (while (<= i slen)
@@ -166,12 +188,27 @@
   plan)
 
 (defun bssheet-make-loaded-plan ( / rec)
+  (bssheet-clear-generated-sheet-entities)
   (bssheet-ensure-layer *bssheet-proposed-layer* 30)
   (bssheet-ensure-layer *bssheet-label-layer* 30)
   (foreach rec *bssheet-plan*
     (bssheet-make-rect (nth 5 rec) *bssheet-proposed-layer*)
     (bssheet-make-text (nth 1 rec) (nth 2 rec) (car rec) *bssheet-label-layer* 60.0))
   (princ (strcat "\n[BSSHEETMAKE] Created " (itoa (length *bssheet-plan*)) " proposed sheet rectangle(s)."))
+  (princ))
+
+(defun bssheet-run-generated-plan ( / rec label-pt)
+  (if *bssheet-generated-plan*
+    (progn
+      (bssheet-clear-generated-sheet-entities)
+      (bssheet-ensure-layer *bssheet-proposed-layer* 30)
+      (bssheet-ensure-layer *bssheet-label-layer* 30)
+      (foreach rec *bssheet-generated-plan*
+        (bssheet-plan-make-rect (nth 3 rec) *bssheet-proposed-layer*)
+        (setq label-pt (cadr rec))
+        (bssheet-plan-make-text label-pt (nth 2 rec) (car rec) *bssheet-label-layer* 60.0))
+      (princ (strcat "\n[BSSHEETMAKEPLAN] Created " (itoa (length *bssheet-generated-plan*)) " proposed sheet rectangle(s).")))
+    (princ "\n[BSSHEETMAKEPLAN] No generated plan loaded. Run BSSHEETLOAD first."))
   (princ))
 
 (defun bssheet-restore-env (old-clayer old-cmdecho / )
@@ -235,6 +272,20 @@
   (cond
     ((findfile lsp)
       (load lsp)
+      (defun c:BSSHEETMAKEPLAN ( / *error* old-clayer old-cmdecho)
+        (setq old-clayer (getvar "CLAYER") old-cmdecho (getvar "CMDECHO"))
+        (defun *error* (msg)
+          (command "_.UNDO" "_E")
+          (bssheet-restore-env old-clayer old-cmdecho)
+          (if (and msg (/= (strcase msg) "*CANCEL*"))
+            (princ (strcat "\n[BSSHEETMAKEPLAN] ERROR: " msg)))
+          (princ))
+        (setvar "CMDECHO" 0)
+        (command "_.UNDO" "_BE")
+        (bssheet-run-generated-plan)
+        (command "_.UNDO" "_E")
+        (bssheet-restore-env old-clayer old-cmdecho)
+        (princ))
       (princ "\n[BSSHEETLOAD] Loaded bssheet_plan.lsp. Run BSSHEETMAKEPLAN, or BSSHEETLOAD again after regenerating."))
     ((findfile csvpath)
       (setq *bssheet-plan* (bssheet-read-csv-plan csvpath))

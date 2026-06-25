@@ -1,5 +1,5 @@
 ;;; ============================================================
-;;; BSPARSNAP - Snap perpendicular PROPERTY LINE endpoints to ROW
+;;; BSPARSNAP v1.0 - Snap perpendicular PROPERTY LINE endpoints to ROW
 ;;;
 ;;; Usage:
 ;;;   BSPARSNAP -> pick ONE ROW line.
@@ -13,6 +13,9 @@
 ;;; Safety:
 ;;;   No deletes. No command-line TRIM/EXTEND. Uses entmod on LINE
 ;;;   endpoints only, so Ctrl+Z can undo the whole run.
+;;;
+;;; Version note:
+;;;   Restored known-good direct-load shape on 2026-06-03.
 ;;; ============================================================
 
 (defun c:BSPARSNAP ( / old-cmdecho old-layer row-ent trap-ent ss i ent
@@ -150,7 +153,7 @@
                                 (setq skip-count (1+ skip-count)))
                               (progn
                                 (bsps-set-line-endpoint ent close-code ipt)
-                                (setq snap-count (1+ snap-count)))))))))))
+                                (setq snap-count (1+ snap-count))))))))))
 
                 (setq i (1+ i)))
 
@@ -167,7 +170,7 @@
               (princ "\n  No entities deleted. LINE endpoints only were moved.")
               (princ "\n[BSPARSNAP] =========================")))))
 
-      (command "_.UNDO" "_END"))
+      (command "_.UNDO" "_END")))
 
   (setvar "CMDECHO" old-cmdecho)
   (setvar "CLAYER" old-layer)
@@ -385,6 +388,9 @@
     (entmod (subst (cons code (list (car pt) (cadr pt) 0.0)) old ed)))
   (entupd ent)
 )
+
+(defun c:BSSNAP ()
+  (c:BSPARSNAP))
 
 (princ "\n[BSPARSNAP] Loaded. Type BSPARSNAP to snap perpendicular PROPERTY LINE endpoints to ROW.")
 (princ)

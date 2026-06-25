@@ -32,6 +32,10 @@ BSINSTALLCHECK
 bs_loader.lsp loads bs_helpers.lsp FIRST, then all command files in dependency order.
 New files are registered via `(bs-load-file "bsNEWFILE.lsp")` at the end of bs_loader.lsp.
 
+## Mandatory status logging
+- After any meaningful LISP test, fix, regression, or validation result, update `04_documentation/TOOLKIT_STATUS.md` before ending the session.
+- Log the exact command names touched, the status (`working`, `partial`, `broken`, `untested`, `regressed`), what was tested, known limitations, and the next action.
+
 ## Shared helpers (bs_helpers.lsp)
 - Layer: `bs-ensure-layer`, `bs-force-layer`
 - Vector math: `bs-vsub`, `bs-vadd`, `bs-vscale`, `bs-vdot`, `bs-vlen`, `bs-vunit`, `bs-vperp-left`, `bs-vperp-right`

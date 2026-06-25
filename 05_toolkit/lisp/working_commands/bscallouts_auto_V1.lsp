@@ -2,9 +2,12 @@
 ;;; BSCALLOUTS_AUTO - Forced callout workflow launcher
 ;;;
 ;;; Commands:
-;;;   BSCALLOUTS-RUN        - plan and place all callouts
-;;;   BSCALLOUTS-LINES      - place route/line callouts only
-;;;   BSCALLOUTS-STATIONING - place handhole/bore pit stationing notes only
+;;;   BSCALLOUTS-RUN        - plan and place every required callout
+;;;   BSCALLOUTS-AUDIT      - plan/report only, no final callouts
+;;;   BSCALLOUTS-CLEAN      - remove temporary callout review/guide layers
+;;;   BSCALLOUTS-STRUCTURES - forced run for structure labels only
+;;;   BSCALLOUTS-BURIED     - forced run for buried route labels only
+;;;   BSCALLOUTS-AERIAL     - forced run for aerial route labels only
 ;;;
 ;;; Depends on: Python script 05_toolkit/python/bscallouts_forced.py
 ;;; AutoCAD Map 3D 2027
@@ -72,20 +75,80 @@
       (startapp "cmd.exe" cmd)))
   (princ))
 
+(defun bscf-clean-layer (layer-name / ss i ent count)
+  (setq count 0)
+  (setq ss (ssget "_X" (list (cons 8 layer-name))))
+  (if ss
+    (progn
+      (setq i 0)
+      (while (< i (sslength ss))
+        (setq ent (ssname ss i))
+        (if ent
+          (progn
+            (entdel ent)
+            (setq count (1+ count))))
+        (setq i (1+ i)))))
+  count)
+
 (defun c:BSCALLOUTS-RUN ( /)
   (bscf-run-python "--run")
   (princ))
 
-(defun c:BSCALLOUTS-LINES ( /)
-  (bscf-run-python "--run --families buried,aerial,mindoc")
+(defun c:BSCALLOUTS-FORCED-RUN ( /)
+  (c:BSCALLOUTS-RUN)
   (princ))
 
-(defun c:BSCALLOUTS-STATIONING ( /)
-  (bscf-run-python "--run --families handhole,borepit")
+(defun c:BSCALLOUTS-AUDIT ( /)
+  (bscf-run-python "--audit-only")
+  (princ))
+
+(defun c:BSCALLOUTS-FORCED-AUDIT ( /)
+  (c:BSCALLOUTS-AUDIT)
+  (princ))
+
+(defun c:BSCALLOUTS-STRUCTURES ( /)
+  (bscf-run-python "--run --families structure")
+  (princ))
+
+(defun c:BSCALLOUTS-BURIED ( /)
+  (bscf-run-python "--run --families buried")
+  (princ))
+
+(defun c:BSCALLOUTS-AERIAL ( /)
+  (bscf-run-python "--run --families aerial")
+  (princ))
+
+(defun c:BSCALLOUTS-CLEAN ( / *error* old-cmdecho removed)
+  (setq old-cmdecho (getvar "CMDECHO"))
+  (defun *error* (msg)
+    (if (= 8 (logand 8 (getvar "UNDOCTL")))
+      (command "_.UNDO" "_E"))
+    (if old-cmdecho (setvar "CMDECHO" old-cmdecho))
+    (if (and msg (/= (strcase msg) "*CANCEL*"))
+      (princ (strcat "\n[BSCALLOUTS-CLEAN] ERROR: " msg)))
+    (princ))
+  (setvar "CMDECHO" 0)
+  (command "_.UNDO" "_BE")
+  (setq removed 0)
+  (foreach layer-name
+    '("BS-CALLOUT-GUIDES"
+      "BS-CALLOUT-ANCHORS"
+      "BS-CALLOUT-CANDIDATES"
+      "BS-CALLOUT-COLLISION"
+      "BS-CALLOUT-REVIEW"
+      "BS-CALLOUT-MASKS")
+    (setq removed (+ removed (bscf-clean-layer layer-name))))
+  (command "_.UNDO" "_E")
+  (setvar "CMDECHO" old-cmdecho)
+  (princ (strcat "\n[BSCALLOUTS-CLEAN] Removed " (itoa removed) " temporary callout guide/review object(s)."))
+  (princ))
+
+(defun c:BSCALLOUTS-FORCED-CLEAN ( /)
+  (c:BSCALLOUTS-CLEAN)
   (princ))
 
 (princ "\n[BSCALLOUTS_AUTO] Loaded forced workflow commands.")
 (princ "\n  BSCALLOUTS-RUN        -> plan and place every required callout")
-(princ "\n  BSCALLOUTS-LINES      -> route labels only")
-(princ "\n  BSCALLOUTS-STATIONING -> handhole/bore pit notes only")
+(princ "\n  BSCALLOUTS-AUDIT      -> plan/report only")
+(princ "\n  BSCALLOUTS-CLEAN      -> remove temporary callout guide/review layers")
 (princ)

@@ -69,6 +69,27 @@ def log(msg: str) -> None:
     print(f"[bsbuild] {msg}")
 
 
+def delete_entities_on_layers(msp: ezdxf.layouts.Modelspace, layer_names: list[str]) -> int:
+    """Remove only generated sheet entities from the working modelspace.
+
+    This is intentionally limited to the proposed sheet layers so accepted
+    BORDER geometry and all production layers remain untouched.
+    """
+    targets = {name for name in layer_names if name}
+    if not targets:
+        return 0
+
+    entities = [ent for ent in msp if getattr(ent.dxf, "layer", None) in targets]
+    deleted = 0
+    for ent in entities:
+        try:
+            msp.delete_entity(ent)
+            deleted += 1
+        except Exception:
+            pass
+    return deleted
+
+
 # ---------- config ----------
 
 def load_config() -> dict:
@@ -92,6 +113,28 @@ def ask_file(title: str, filetypes: list[tuple[str, str]]) -> str:
     p = filedialog.askopenfilename(title=title, filetypes=filetypes)
     root.destroy()
     return p
+
+
+def unique_output_path(path: Path) -> Path:
+    """Return a collision-resistant path in the same folder."""
+    stamp = time.strftime("%Y%m%d_%H%M%S")
+    return path.with_name(f"{path.stem}_{stamp}{path.suffix}")
+
+
+def publish_output(src: Path, dst: Path) -> Path:
+    """Move src to dst when possible; otherwise keep src."""
+    if src == dst:
+        return dst
+    try:
+        if dst.exists():
+            try:
+                dst.unlink()
+            except Exception:
+                return src
+        src.replace(dst)
+        return dst
+    except Exception:
+        return src
 
 
 # ---------- discovery ----------
@@ -432,6 +475,8 @@ def main() -> int:
     job_dir.mkdir(exist_ok=True)
     working_path = job_dir / f"{job_name}_WORKING.dxf"
     dataset_path = job_dir / f"{job_name}_DATASET.dxf"
+    working_tmp_path = unique_output_path(working_path)
+    dataset_tmp_path = unique_output_path(dataset_path)
     log(f"Job folder: {job_dir}")
 
     # 5) open template as the WORKING doc; ensure required layers exist (without overriding existing)
@@ -447,6 +492,7 @@ def main() -> int:
         doc_out.layers.add(SHEET_LAYER, color=SHEET_COLOR)
 
     msp_out = doc_out.modelspace()
+    delete_entities_on_layers(msp_out, [SHEET_LAYER, "BS-SHEET-LABELS"])
 
     # 5a) parcels into the WORKING file
     n_parcels = 0
@@ -476,19 +522,15 @@ def main() -> int:
     sheet_warnings: list[str] = []
     if route_parts_ft:
         log("Planning proposed sheets...")
-        merged = bssheetplan.merge_touching_parts(route_parts_ft)
-        start = 1
-        for branch_index, (_name, line) in enumerate(merged, start=1):
-            sheets, warns = bssheetplan.plan_line(branch_index, line, sheet_cfg, start)
-            sheet_warnings.extend(warns)
-            for s in sheets:
-                # closed rectangle on proposed-sheet layer (orange)
-                msp_out.add_lwpolyline(
-                    s.vertices, close=True,
-                    dxfattribs={"layer": SHEET_LAYER}
-                )
-                n_sheets += 1
-            start += len(sheets)
+        sheets = bssheetplan.plan_route_sheets_kmz(route_parts_ft, sheet_cfg)
+        sheet_warnings.extend(bssheetplan.sheet_overlap_warnings(sheets))
+        for s in sheets:
+            # closed rectangle on proposed-sheet layer (orange)
+            msp_out.add_lwpolyline(
+                s.vertices, close=True,
+                dxfattribs={"layer": SHEET_LAYER}
+            )
+            n_sheets += 1
         log(f"  Sheets placed: {n_sheets}")
         if sheet_warnings:
             for w in sheet_warnings[:5]:
@@ -496,7 +538,7 @@ def main() -> int:
             if len(sheet_warnings) > 5:
                 log(f"  ({len(sheet_warnings) - 5} more warnings suppressed)")
 
-    doc_out.saveas(str(working_path))
+    doc_out.saveas(str(working_tmp_path))
     log(f"  WORKING: {n_parcels} parcels + {n_lines} fiber lines + {n_sheets} sheets into template")
 
     # 6) also write the parcels-only DATASET file (lightweight reference)
@@ -507,20 +549,24 @@ def main() -> int:
     msp_ds = doc_ds.modelspace()
     for ent in kept:
         copy_parcel(ent, msp_ds, PARCELS_LAYER_DST)
-    doc_ds.saveas(str(dataset_path))
+    doc_ds.saveas(str(dataset_tmp_path))
     log(f"  DATASET: parcels-only reference written")
 
     # 7) convert both to DWG so they double-click open in AutoCAD
     log("Converting outputs to DWG...")
-    working_dwg = working_path.with_suffix(".dwg")
-    dataset_dwg = dataset_path.with_suffix(".dwg")
-    ok_w = dxf_to_dwg(working_path, working_dwg)
-    ok_d = dxf_to_dwg(dataset_path, dataset_dwg)
+    working_dwg_tmp = working_tmp_path.with_suffix(".dwg")
+    dataset_dwg_tmp = dataset_tmp_path.with_suffix(".dwg")
+    ok_w = dxf_to_dwg(working_tmp_path, working_dwg_tmp)
+    ok_d = dxf_to_dwg(dataset_tmp_path, dataset_dwg_tmp)
+
+    working_final = publish_output(working_dwg_tmp, working_path) if ok_w else working_tmp_path
+    dataset_final = publish_output(dataset_dwg_tmp, dataset_path) if ok_d else dataset_tmp_path
+
     if ok_w:
-        try: working_path.unlink()
+        try: working_tmp_path.unlink()
         except: pass
     if ok_d:
-        try: dataset_path.unlink()
+        try: dataset_tmp_path.unlink()
         except: pass
 
     if skipped_folders:
@@ -528,11 +574,11 @@ def main() -> int:
     log("")
     log(f"DONE. Job folder: {job_dir}")
     if ok_w:
-        log(f"  -> {working_dwg.name}  (double-click to open in AutoCAD)")
+        log(f"  -> {working_final.name}  (double-click to open in AutoCAD)")
     else:
         log(f"  -> {working_path.name}  (DWG conversion failed — open as DXF)")
     if ok_d:
-        log(f"  -> {dataset_dwg.name}  (parcels-only reference)")
+        log(f"  -> {dataset_final.name}  (parcels-only reference)")
     else:
         log(f"  -> {dataset_path.name}  (parcels-only reference, DXF)")
     return 0

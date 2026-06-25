@@ -23,6 +23,7 @@
 
 # --- Job-specific subfolders ---
 01_intake/
+02_research/
 06_jobs/
 07_reviews/
 job files/
@@ -61,3 +62,4 @@ Thumbs.db
 bssheet_plan.csv
 bssheet_report.txt
 bssheet_route_selected.txt
+05_toolkit/python/reports/

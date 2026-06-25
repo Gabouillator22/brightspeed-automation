@@ -4,7 +4,7 @@
 ;;; Runs 8 checks and reports violations to the command line.
 ;;; No entities are modified. Pure diagnostic scan.
 ;;;
-;;; CHECK 1: Text height on CALLOUTS/STATIONING layers
+;;; CHECK 1: Text height on CALLOUTS/CABLE CALLOUTS/STATIONING layers
 ;;;   Text not at 5.0 height -> flag.
 ;;;
 ;;; CHECK 2: Fiber polylines on correct layers
@@ -15,14 +15,14 @@
 ;;;   (Proximity threshold: 50')
 ;;;
 ;;; CHECK 4: Structure blocks without station label
-;;;   INSERT matching HANDHOLE/HH/BORE/BOREPIT/POLE with no nearby
+;;;   INSERT matching HANDHOLE/HH/BORE/BOREPIT/POLE+RISER with no nearby
 ;;;   STATIONING text within 15' -> flag.
 ;;;
 ;;; CHECK 5: Wide polylines on wrong layers
 ;;;   LWPOLYLINE with constant width >= 0.4 not on a fiber layer -> flag.
 ;;;
-;;; CHECK 6: Text overlap on CALLOUTS layer
-;;;   TEXT entities on CALLOUTS within 5' of each other -> flag pairs.
+;;; CHECK 6: Text overlap on callout layers
+;;;   TEXT entities on CALLOUTS/CABLE CALLOUTS within 5' of each other -> flag pairs.
 ;;;
 ;;; CHECK 7: WORK AREA labels
 ;;;   If no TEXT containing "WORK AREA" exists -> flag.
@@ -66,7 +66,11 @@
   (setq blocks-ss
     (ssget "X" '((0 . "INSERT"))))
   (setq callout-txt-ss
-    (ssget "X" '((0 . "TEXT") (8 . "CALLOUTS"))))
+    (ssget "X" '((0 . "TEXT,MTEXT,MULTILEADER")
+                 (-4 . "<OR")
+                 (8 . "CALLOUTS")
+                 (8 . "CABLE CALLOUTS")
+                 (-4 . "OR>"))))
   (setq station-txt-ss
     (ssget "X" '((0 . "TEXT") (8 . "STATIONING"))))
   (setq wa-txt-ss
@@ -75,11 +79,11 @@
     (ssget "X" (list '(0 . "TEXT,MTEXT") (cons 1 "*MIN D.O.C.*"))))
 
   ;; ============================================================
-  ;; CHECK 1 — Text height on CALLOUTS and STATIONING layers
+  ;; CHECK 1 — Text height on callout and STATIONING layers
   ;; ============================================================
   (princ "\n[BSAUDIT] CHECK 1: Text heights...")
   (setq check1-count 0)
-  (foreach layer-name '("CALLOUTS" "STATIONING")
+  (foreach layer-name '("CALLOUTS" "CABLE CALLOUTS" "STATIONING")
     (setq txt-ss (ssget "X" (list '(0 . "TEXT") (cons 8 layer-name))))
     (if txt-ss
       (progn
@@ -161,8 +165,8 @@
             (setq j 0)
             (while (and (< j (sslength callout-txt-ss)) (not has-callout))
               (setq txt-ent (ssname callout-txt-ss j))
-              (setq txt-str (cdr (assoc 1 (entget txt-ent))))
-              (setq txt-pos (cdr (assoc 10 (entget txt-ent))))
+              (setq txt-str (bsa-object-text txt-ent))
+              (setq txt-pos (bsa-object-point txt-ent))
               (if (and txt-str txt-pos
                        (vl-string-search "HDD BORE" (strcase txt-str))
                        (< (distance mid-pt txt-pos) 50.0))
@@ -194,7 +198,6 @@
   ;; ============================================================
   (princ "\n[BSAUDIT] CHECK 4: Station label coverage...")
   (setq check4-count 0)
-  (setq struct-keywords '("HANDHOLE" "HH" "BORE" "BOREPIT" "POLE"))
 
   (if blocks-ss
     (progn
@@ -203,7 +206,7 @@
         (setq ent (ssname blocks-ss i))
         (setq blk-name (strcase (cdr (assoc 2 (entget ent)))))
 
-        (if (bsst-matches-any-keyword blk-name struct-keywords)
+        (if (bsa-station-structure-p blk-name)
           (progn
             (setq ins-pt (cdr (assoc 10 (entget ent))))
             (setq ins-pt (list (car ins-pt) (cadr ins-pt) 0.0))
@@ -280,7 +283,7 @@
     (princ (strcat " " (itoa check5-count) " violations")))
 
   ;; ============================================================
-  ;; CHECK 6 — Text overlap on CALLOUTS layer
+  ;; CHECK 6 — Text overlap on callout layers
   ;; ============================================================
   (princ "\n[BSAUDIT] CHECK 6: Callout text overlap...")
   (setq check6-count 0)
@@ -289,15 +292,15 @@
       (setq i 0)
       (while (< i (1- (sslength callout-txt-ss)))
         (setq ent (ssname callout-txt-ss i))
-        (setq pt1 (cdr (assoc 10 (entget ent))))
+        (setq pt1 (bsa-object-point ent))
         (setq j (1+ i))
         (while (< j (sslength callout-txt-ss))
           (setq txt-ent (ssname callout-txt-ss j))
-          (setq pt2 (cdr (assoc 10 (entget txt-ent))))
+          (setq pt2 (bsa-object-point txt-ent))
           (if (and pt1 pt2 (< (distance pt1 pt2) 5.0))
             (progn
               (setq violations (append violations
-                (list (strcat "  CHECK6: Text overlap < 5' on CALLOUTS: handles "
+                (list (strcat "  CHECK6: Text overlap < 5' on callout layers: handles "
                   (cdr (assoc 5 (entget ent)))
                   " and " (cdr (assoc 5 (entget txt-ent)))))))
               (setq check6-count (1+ check6-count))
@@ -370,6 +373,52 @@
   (princ "\n[BSAUDIT] ============================================")
   (princ)
 )
+;;; ---------------------------------------------------------------
+;;; Private helpers
+;;; ---------------------------------------------------------------
+
+(defun bsa-station-structure-p (block-name-upper / )
+  ;; Only station handholes, bore pits, and poles with risers.
+  (or (vl-string-search "HANDHOLE" block-name-upper)
+      (vl-string-search "BORE" block-name-upper)
+      (vl-string-search "BOREPIT" block-name-upper)
+      (and (vl-string-search "POLE" block-name-upper)
+           (vl-string-search "RISER" block-name-upper))))
+
+(defun bsa-object-text (ent / obj txt data)
+  (setq obj (vl-catch-all-apply 'vlax-ename->vla-object (list ent)))
+  (if (or (null obj) (vl-catch-all-error-p obj))
+    (setq txt nil)
+    (setq txt (vl-catch-all-apply 'vlax-get-property (list obj 'TextString))))
+  (if (or (null txt) (vl-catch-all-error-p txt))
+    (progn
+      (setq data (entget ent))
+      (setq txt (or (cdr (assoc 1 data)) (cdr (assoc 304 data))))))
+  txt)
+
+(defun bsa-object-point (ent / data obj res minp maxp mn mx)
+  (setq data (entget ent))
+  (cond
+    ((cdr (assoc 10 data)))
+    (T
+      (setq obj (vl-catch-all-apply 'vlax-ename->vla-object (list ent)))
+      (if (or (null obj) (vl-catch-all-error-p obj))
+        nil
+        (progn
+          (setq res (vl-catch-all-apply 'vla-GetBoundingBox (list obj 'minp 'maxp)))
+          (if (vl-catch-all-error-p res)
+            nil
+            (progn
+              (setq mn (vl-catch-all-apply 'vlax-safearray->list (list minp)))
+              (setq mx (vl-catch-all-apply 'vlax-safearray->list (list maxp)))
+              (if (or (vl-catch-all-error-p mn)
+                      (vl-catch-all-error-p mx)
+                      (not (listp mn))
+                      (not (listp mx)))
+                nil
+                (list (/ (+ (car mn) (car mx)) 2.0)
+                      (/ (+ (cadr mn) (cadr mx)) 2.0)
+                      0.0)))))))))
 
 (princ "\n[BSAUDIT v2] Loaded. Type BSAUDIT to run 8-check compliance scan.")
 (princ)

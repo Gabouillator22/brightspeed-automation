@@ -27,6 +27,28 @@
       (= up "AERIAL FIBER")
       (= up "E-LASH")))
 
+(defun bssheetkmz-clear-generated-sheet-entities ( / ss i ent moved)
+  ;; Safe cleanup: only generated proposed-sheet layers are removed; accepted BORDER stays intact.
+  (setq moved 0)
+  (setq ss
+    (ssget "_X"
+      (list
+        '(-4 . "<OR")
+        (cons 8 "BS-SHEET-PROPOSED")
+        (cons 8 "BS-SHEET-LABELS")
+        '(-4 . "OR>"))))
+  (if ss
+    (progn
+      (setq i 0)
+      (while (< i (sslength ss))
+        (setq ent (ssname ss i))
+        (if (and ent (entget ent))
+          (progn
+            (entdel ent)
+            (setq moved (1+ moved))))
+        (setq i (1+ i)))))
+  moved)
+
 (defun bssheetkmz-lwpoly-verts (ent / data verts pair)
   (setq data (entget ent) verts '())
   (foreach pair data
@@ -208,6 +230,7 @@
       (princ "\n[BSSHEETKMZ] ERROR: No newly imported running-line polylines found.")
       (exit)))
 
+  (bssheetkmz-clear-generated-sheet-entities)
   (setq count (bssheetkmz-place-route-sheets run-ents))
   (if (and count (> count 0))
     (princ (strcat "\n[BSSHEETKMZ] Created " (itoa count) " parallel proposed sheet(s). Review before accepting."))
