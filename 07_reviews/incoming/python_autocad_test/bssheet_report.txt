@@ -1,0 +1,13 @@
+Brightspeed Sheet Plan Report
+=============================
+source: C:\Users\Gabriel\Desktop\BRIGHTSPEED\AUTOMATION\Freemont_FRMTNCXA_NorthWest1_PERMITS.kmz
+coordinate_transform: EPSG:4326 -> EPSG:2264
+route_length_ft: 7688.8
+sheet_count: 10
+total_covered_feet: 7688.8
+corridor_width_ft: 300.0
+endpoint_inset_ratio: 0.6667
+uncovered_corridor_stations: B1:1200.0@-150.0, B1:2100.0@-150.0, B1:3000.0@-150.0, B1:3875.0@50.0, B1:3900.0@-75.0, B1:3925.0@100.0, B1:4800.0@-150.0, B1:4825.0@75.0, B1:5700.0@-150.0, B1:6600.0@-150.0, B1:6625.0@-150.0, B1:7500.0@-150.0
+sheet_overlap_warnings: S001-S002:38849.8sf, S002-S003:21.8sf, S003-S004:25.4sf, S004-S005:373.6sf, S005-S006:10389.7sf, S006-S007:3129.3sf, S007-S008:304.4sf, S008-S009:109034.5sf
+branch_count: 1
+raw_line_count: 6

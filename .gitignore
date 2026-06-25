@@ -1,43 +1,23 @@
-# --- Customer / job data (never commit) ---
-*.kmz
+# --- Generated run scripts (contain machine-specific absolute paths) ---
+05_toolkit/python/reports/*.lsp
+
+# --- Binary CAD files (never commit — stay on local Windows drive) ---
 *.dwg
 *.dxf
-*.pdf
-*.xlsx
-*.docx
-*.zip
-*.rar
-
-# Allow intentional .md files
-!README.md
-!AGENTS.md
-!CLAUDE.md
-!SESSION_NOTES.md
-!BSSHEET_README.md
-!05_toolkit/lisp/AGENTS.md
-!05_toolkit/python/AGENTS.md
+*.cached.dxf
 
 # --- Generated caches ---
 05_toolkit/cache/
-*.cached.dxf
 
-# --- Job-specific subfolders ---
-01_intake/
-02_research/
-06_jobs/
-07_reviews/
-job files/
-04_documentation/
-_kmz_extract/
-_python_autocad_test/
-
-# --- AutoCAD scratch ---
+# --- AutoCAD scratch / logs ---
 *.bak
 *.dwl
 *.dwl2
 *.err
 *.log
 acad.err
+ErrorReports/
+08_issues/logs/
 
 # --- Python / venv ---
 .venv/
@@ -50,16 +30,9 @@ __pycache__/
 # --- OS / IDE ---
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
-.codex/
 
 # --- Claude Code — commit .claude/ EXCEPT local overrides and worktrees ---
 .claude/settings.local.json
 .claude/worktrees/
-
-# --- Generated outputs ---
-bssheet_plan.csv
-bssheet_report.txt
-bssheet_route_selected.txt
-05_toolkit/python/reports/
+.pytest_tmp/

@@ -23,7 +23,7 @@ if [ -n "$STAGED_PY" ]; then
 fi
 
 # 2. Paren balance on staged .lsp files
-STAGED_LSP=$(git diff --cached --name-only --diff-filter=ACM | grep '\.lsp$' || true)
+STAGED_LSP=$(git diff --cached --name-only --diff-filter=ACM | grep '\.lsp$' | grep -v '^02_research/' || true)
 if [ -n "$STAGED_LSP" ]; then
   echo "--- lsp paren balance ---"
   FAIL=0
@@ -64,7 +64,7 @@ fi
 # 5. pytest (only if tests exist and pytest available)
 if command -v pytest &>/dev/null && [ -d "05_toolkit/python/tests" ]; then
   echo "--- pytest ---"
-  pytest 05_toolkit/python/tests/ -q --tb=short 2>/dev/null || {
+  pytest 05_toolkit/python/tests/ -q --tb=short --basetemp=.pytest_tmp 2>/dev/null || {
     echo "FAIL: tests failed."
     exit 1
   }

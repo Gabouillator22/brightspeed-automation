@@ -1,0 +1,921 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Folder>
+	<name>Freemont_FRMTNCXA_NorthWest1_PERMITS</name>
+	<open>1</open>
+	<Document>
+		<name>CO</name>
+		<Schema name="CO" id="S_CO_SSSSSS">
+			<SimpleField type="long" name="FeatId1"><displayName>&lt;b&gt;FeatId1&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="id_2"><displayName>&lt;b&gt;id&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="title"><displayName>&lt;b&gt;title&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="long" name="isexisting"><displayName>&lt;b&gt;isexisting&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="color"><displayName>&lt;b&gt;color&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="supplied_"><displayName>&lt;b&gt;supplied_&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="media_swi"><displayName>&lt;b&gt;media_swi&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="signal_sw"><displayName>&lt;b&gt;signal_sw&lt;/b&gt;</displayName>
+</SimpleField>
+		</Schema>
+		<Style id="hlightPointStyle">
+			<IconStyle>
+				<color>ff00aaff</color>
+				<scale>2</scale>
+				<Icon>
+					<href>http://maps.google.com/mapfiles/kml/shapes/polygon.png</href>
+				</Icon>
+			</IconStyle>
+			<BalloonStyle>
+				<text><![CDATA[<table border="0">
+  <tr><td><b>FeatId1</b></td><td>$[CO/FeatId1]</td></tr>
+  <tr><td><b>id</b></td><td>$[CO/id_2]</td></tr>
+  <tr><td><b>title</b></td><td>$[CO/title]</td></tr>
+  <tr><td><b>isexisting</b></td><td>$[CO/isexisting]</td></tr>
+  <tr><td><b>color</b></td><td>$[CO/color]</td></tr>
+  <tr><td><b>supplied_</b></td><td>$[CO/supplied_]</td></tr>
+  <tr><td><b>media_swi</b></td><td>$[CO/media_swi]</td></tr>
+  <tr><td><b>signal_sw</b></td><td>$[CO/signal_sw]</td></tr>
+</table>
+]]></text>
+			</BalloonStyle>
+			<ListStyle>
+			</ListStyle>
+		</Style>
+		<Style id="normPointStyle">
+			<IconStyle>
+				<color>ff00aaff</color>
+				<scale>2</scale>
+				<Icon>
+					<href>http://maps.google.com/mapfiles/kml/shapes/polygon.png</href>
+				</Icon>
+			</IconStyle>
+			<BalloonStyle>
+				<text><![CDATA[<table border="0">
+  <tr><td><b>FeatId1</b></td><td>$[CO/FeatId1]</td></tr>
+  <tr><td><b>id</b></td><td>$[CO/id_2]</td></tr>
+  <tr><td><b>title</b></td><td>$[CO/title]</td></tr>
+  <tr><td><b>isexisting</b></td><td>$[CO/isexisting]</td></tr>
+  <tr><td><b>color</b></td><td>$[CO/color]</td></tr>
+  <tr><td><b>supplied_</b></td><td>$[CO/supplied_]</td></tr>
+  <tr><td><b>media_swi</b></td><td>$[CO/media_swi]</td></tr>
+  <tr><td><b>signal_sw</b></td><td>$[CO/signal_sw]</td></tr>
+</table>
+]]></text>
+			</BalloonStyle>
+			<ListStyle>
+			</ListStyle>
+		</Style>
+		<StyleMap id="pointStyleMap">
+			<Pair>
+				<key>normal</key>
+				<styleUrl>#normPointStyle</styleUrl>
+			</Pair>
+			<Pair>
+				<key>highlight</key>
+				<styleUrl>#hlightPointStyle</styleUrl>
+			</Pair>
+		</StyleMap>
+		<Folder id="layer 0">
+			<name>CO</name>
+			<Placemark>
+				<styleUrl>#pointStyleMap</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_CO_SSSSSS">
+						<SimpleData name="FeatId1">1</SimpleData>
+						<SimpleData name="id_2">70366</SimpleData>
+						<SimpleData name="title">FRMTNCXA - ,,NC (TP)</SimpleData>
+						<SimpleData name="isexisting">0</SimpleData>
+						<SimpleData name="color">#ff00ff</SimpleData>
+						<SimpleData name="supplied_">60197</SimpleData>
+						<SimpleData name="media_swi">fiber_patch_panel/196356</SimpleData>
+						<SimpleData name="signal_sw"></SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Point>
+					<coordinates>-77.98381808667799,35.52735062326428,0</coordinates>
+				</Point>
+			</Placemark>
+		</Folder>
+	</Document>
+	<Document>
+		<name>HANDHOLE</name>
+		<Schema name="HANDHOLE" id="S_HANDHOLE_SSSSSSSSDDDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS">
+			<SimpleField type="long" name="FeatId1"><displayName>&lt;b&gt;FeatId1&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="id_2"><displayName>&lt;b&gt;id&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="name"><displayName>&lt;b&gt;name&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="labor_cos"><displayName>&lt;b&gt;labor_cos&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="specifica"><displayName>&lt;b&gt;specifica&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="type"><displayName>&lt;b&gt;type&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="construct"><displayName>&lt;b&gt;construct&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cubic_con"><displayName>&lt;b&gt;cubic_con&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="long" name="drop_count"><displayName>&lt;b&gt;drop_count&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="drop_code"><displayName>&lt;b&gt;drop_code&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="double" name="depth"><displayName>&lt;b&gt;depth&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="double" name="width"><displayName>&lt;b&gt;width&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="double" name="installed"><displayName>&lt;b&gt;installed&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="account_c"><displayName>&lt;b&gt;account_c&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_projec"><displayName>&lt;b&gt;cl_projec&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_drawin"><displayName>&lt;b&gt;cl_drawin&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_legacy"><displayName>&lt;b&gt;cl_legacy&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_row_ow"><displayName>&lt;b&gt;cl_row_ow&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_usage"><displayName>&lt;b&gt;cl_usage&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="long" name="cl_elevat"><displayName>&lt;b&gt;cl_elevat&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_instal"><displayName>&lt;b&gt;cl_instal&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_depart"><displayName>&lt;b&gt;cl_depart&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_note"><displayName>&lt;b&gt;cl_note&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_assign"><displayName>&lt;b&gt;cl_assign&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_leased"><displayName>&lt;b&gt;cl_leased&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_insta_1"><displayName>&lt;b&gt;cl_insta_1&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_owned_"><displayName>&lt;b&gt;cl_owned_&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="long" name="cl_is_pre"><displayName>&lt;b&gt;cl_is_pre&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_last_m"><displayName>&lt;b&gt;cl_last_m&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_city"><displayName>&lt;b&gt;cl_city&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_county"><displayName>&lt;b&gt;cl_county&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_state"><displayName>&lt;b&gt;cl_state&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_owners"><displayName>&lt;b&gt;cl_owners&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_featur"><displayName>&lt;b&gt;cl_featur&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_mnemon"><displayName>&lt;b&gt;cl_mnemon&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_user_d"><displayName>&lt;b&gt;cl_user_d&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_user__1"><displayName>&lt;b&gt;cl_user__1&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_user__2"><displayName>&lt;b&gt;cl_user__2&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_user__3"><displayName>&lt;b&gt;cl_user__3&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="long" name="cl_lcr_ca"><displayName>&lt;b&gt;cl_lcr_ca&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="nds_id"><displayName>&lt;b&gt;nds_id&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="nds_migra"><displayName>&lt;b&gt;nds_migra&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="wire_cent"><displayName>&lt;b&gt;wire_cent&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="spec_id"><displayName>&lt;b&gt;spec_id&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="sap_proje"><displayName>&lt;b&gt;sap_proje&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="last_sap_"><displayName>&lt;b&gt;last_sap_&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="placement"><displayName>&lt;b&gt;placement&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="data_sour"><displayName>&lt;b&gt;data_sour&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="created_at"><displayName>&lt;b&gt;created_at&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="updated_at"><displayName>&lt;b&gt;updated_at&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="create_us"><displayName>&lt;b&gt;create_us&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="update_us"><displayName>&lt;b&gt;update_us&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="sort_chil"><displayName>&lt;b&gt;sort_chil&lt;/b&gt;</displayName>
+</SimpleField>
+		</Schema>
+		<Style id="hlightPointStyle0">
+			<IconStyle>
+				<scale>0.7</scale>
+				<Icon>
+					<href>http://maps.google.com/mapfiles/kml/shapes/square.png</href>
+				</Icon>
+			</IconStyle>
+			<BalloonStyle>
+				<text><![CDATA[<table border="0">
+  <tr><td><b>FeatId1</b></td><td>$[HANDHOLE/FeatId1]</td></tr>
+  <tr><td><b>id</b></td><td>$[HANDHOLE/id_2]</td></tr>
+  <tr><td><b>name</b></td><td>$[HANDHOLE/name]</td></tr>
+  <tr><td><b>labor_cos</b></td><td>$[HANDHOLE/labor_cos]</td></tr>
+  <tr><td><b>specifica</b></td><td>$[HANDHOLE/specifica]</td></tr>
+  <tr><td><b>type</b></td><td>$[HANDHOLE/type]</td></tr>
+  <tr><td><b>construct</b></td><td>$[HANDHOLE/construct]</td></tr>
+  <tr><td><b>cubic_con</b></td><td>$[HANDHOLE/cubic_con]</td></tr>
+  <tr><td><b>drop_count</b></td><td>$[HANDHOLE/drop_count]</td></tr>
+  <tr><td><b>drop_code</b></td><td>$[HANDHOLE/drop_code]</td></tr>
+  <tr><td><b>depth</b></td><td>$[HANDHOLE/depth]</td></tr>
+  <tr><td><b>width</b></td><td>$[HANDHOLE/width]</td></tr>
+  <tr><td><b>installed</b></td><td>$[HANDHOLE/installed]</td></tr>
+  <tr><td><b>account_c</b></td><td>$[HANDHOLE/account_c]</td></tr>
+  <tr><td><b>cl_projec</b></td><td>$[HANDHOLE/cl_projec]</td></tr>
+  <tr><td><b>cl_drawin</b></td><td>$[HANDHOLE/cl_drawin]</td></tr>
+  <tr><td><b>cl_legacy</b></td><td>$[HANDHOLE/cl_legacy]</td></tr>
+  <tr><td><b>cl_row_ow</b></td><td>$[HANDHOLE/cl_row_ow]</td></tr>
+  <tr><td><b>cl_usage</b></td><td>$[HANDHOLE/cl_usage]</td></tr>
+  <tr><td><b>cl_elevat</b></td><td>$[HANDHOLE/cl_elevat]</td></tr>
+  <tr><td><b>cl_instal</b></td><td>$[HANDHOLE/cl_instal]</td></tr>
+  <tr><td><b>cl_depart</b></td><td>$[HANDHOLE/cl_depart]</td></tr>
+  <tr><td><b>cl_note</b></td><td>$[HANDHOLE/cl_note]</td></tr>
+  <tr><td><b>cl_assign</b></td><td>$[HANDHOLE/cl_assign]</td></tr>
+  <tr><td><b>cl_leased</b></td><td>$[HANDHOLE/cl_leased]</td></tr>
+  <tr><td><b>cl_insta_1</b></td><td>$[HANDHOLE/cl_insta_1]</td></tr>
+  <tr><td><b>cl_owned_</b></td><td>$[HANDHOLE/cl_owned_]</td></tr>
+  <tr><td><b>cl_is_pre</b></td><td>$[HANDHOLE/cl_is_pre]</td></tr>
+  <tr><td><b>cl_last_m</b></td><td>$[HANDHOLE/cl_last_m]</td></tr>
+  <tr><td><b>cl_city</b></td><td>$[HANDHOLE/cl_city]</td></tr>
+  <tr><td><b>cl_county</b></td><td>$[HANDHOLE/cl_county]</td></tr>
+  <tr><td><b>cl_state</b></td><td>$[HANDHOLE/cl_state]</td></tr>
+  <tr><td><b>cl_owners</b></td><td>$[HANDHOLE/cl_owners]</td></tr>
+  <tr><td><b>cl_featur</b></td><td>$[HANDHOLE/cl_featur]</td></tr>
+  <tr><td><b>cl_mnemon</b></td><td>$[HANDHOLE/cl_mnemon]</td></tr>
+  <tr><td><b>cl_user_d</b></td><td>$[HANDHOLE/cl_user_d]</td></tr>
+  <tr><td><b>cl_user__1</b></td><td>$[HANDHOLE/cl_user__1]</td></tr>
+  <tr><td><b>cl_user__2</b></td><td>$[HANDHOLE/cl_user__2]</td></tr>
+  <tr><td><b>cl_user__3</b></td><td>$[HANDHOLE/cl_user__3]</td></tr>
+  <tr><td><b>cl_lcr_ca</b></td><td>$[HANDHOLE/cl_lcr_ca]</td></tr>
+  <tr><td><b>nds_id</b></td><td>$[HANDHOLE/nds_id]</td></tr>
+  <tr><td><b>nds_migra</b></td><td>$[HANDHOLE/nds_migra]</td></tr>
+  <tr><td><b>wire_cent</b></td><td>$[HANDHOLE/wire_cent]</td></tr>
+  <tr><td><b>spec_id</b></td><td>$[HANDHOLE/spec_id]</td></tr>
+  <tr><td><b>sap_proje</b></td><td>$[HANDHOLE/sap_proje]</td></tr>
+  <tr><td><b>last_sap_</b></td><td>$[HANDHOLE/last_sap_]</td></tr>
+  <tr><td><b>placement</b></td><td>$[HANDHOLE/placement]</td></tr>
+  <tr><td><b>data_sour</b></td><td>$[HANDHOLE/data_sour]</td></tr>
+  <tr><td><b>created_at</b></td><td>$[HANDHOLE/created_at]</td></tr>
+  <tr><td><b>updated_at</b></td><td>$[HANDHOLE/updated_at]</td></tr>
+  <tr><td><b>create_us</b></td><td>$[HANDHOLE/create_us]</td></tr>
+  <tr><td><b>update_us</b></td><td>$[HANDHOLE/update_us]</td></tr>
+  <tr><td><b>sort_chil</b></td><td>$[HANDHOLE/sort_chil]</td></tr>
+</table>
+]]></text>
+			</BalloonStyle>
+			<ListStyle>
+			</ListStyle>
+		</Style>
+		<Style id="normPointStyle0">
+			<IconStyle>
+				<scale>0.7</scale>
+				<Icon>
+					<href>http://maps.google.com/mapfiles/kml/shapes/square.png</href>
+				</Icon>
+			</IconStyle>
+			<BalloonStyle>
+				<text><![CDATA[<table border="0">
+  <tr><td><b>FeatId1</b></td><td>$[HANDHOLE/FeatId1]</td></tr>
+  <tr><td><b>id</b></td><td>$[HANDHOLE/id_2]</td></tr>
+  <tr><td><b>name</b></td><td>$[HANDHOLE/name]</td></tr>
+  <tr><td><b>labor_cos</b></td><td>$[HANDHOLE/labor_cos]</td></tr>
+  <tr><td><b>specifica</b></td><td>$[HANDHOLE/specifica]</td></tr>
+  <tr><td><b>type</b></td><td>$[HANDHOLE/type]</td></tr>
+  <tr><td><b>construct</b></td><td>$[HANDHOLE/construct]</td></tr>
+  <tr><td><b>cubic_con</b></td><td>$[HANDHOLE/cubic_con]</td></tr>
+  <tr><td><b>drop_count</b></td><td>$[HANDHOLE/drop_count]</td></tr>
+  <tr><td><b>drop_code</b></td><td>$[HANDHOLE/drop_code]</td></tr>
+  <tr><td><b>depth</b></td><td>$[HANDHOLE/depth]</td></tr>
+  <tr><td><b>width</b></td><td>$[HANDHOLE/width]</td></tr>
+  <tr><td><b>installed</b></td><td>$[HANDHOLE/installed]</td></tr>
+  <tr><td><b>account_c</b></td><td>$[HANDHOLE/account_c]</td></tr>
+  <tr><td><b>cl_projec</b></td><td>$[HANDHOLE/cl_projec]</td></tr>
+  <tr><td><b>cl_drawin</b></td><td>$[HANDHOLE/cl_drawin]</td></tr>
+  <tr><td><b>cl_legacy</b></td><td>$[HANDHOLE/cl_legacy]</td></tr>
+  <tr><td><b>cl_row_ow</b></td><td>$[HANDHOLE/cl_row_ow]</td></tr>
+  <tr><td><b>cl_usage</b></td><td>$[HANDHOLE/cl_usage]</td></tr>
+  <tr><td><b>cl_elevat</b></td><td>$[HANDHOLE/cl_elevat]</td></tr>
+  <tr><td><b>cl_instal</b></td><td>$[HANDHOLE/cl_instal]</td></tr>
+  <tr><td><b>cl_depart</b></td><td>$[HANDHOLE/cl_depart]</td></tr>
+  <tr><td><b>cl_note</b></td><td>$[HANDHOLE/cl_note]</td></tr>
+  <tr><td><b>cl_assign</b></td><td>$[HANDHOLE/cl_assign]</td></tr>
+  <tr><td><b>cl_leased</b></td><td>$[HANDHOLE/cl_leased]</td></tr>
+  <tr><td><b>cl_insta_1</b></td><td>$[HANDHOLE/cl_insta_1]</td></tr>
+  <tr><td><b>cl_owned_</b></td><td>$[HANDHOLE/cl_owned_]</td></tr>
+  <tr><td><b>cl_is_pre</b></td><td>$[HANDHOLE/cl_is_pre]</td></tr>
+  <tr><td><b>cl_last_m</b></td><td>$[HANDHOLE/cl_last_m]</td></tr>
+  <tr><td><b>cl_city</b></td><td>$[HANDHOLE/cl_city]</td></tr>
+  <tr><td><b>cl_county</b></td><td>$[HANDHOLE/cl_county]</td></tr>
+  <tr><td><b>cl_state</b></td><td>$[HANDHOLE/cl_state]</td></tr>
+  <tr><td><b>cl_owners</b></td><td>$[HANDHOLE/cl_owners]</td></tr>
+  <tr><td><b>cl_featur</b></td><td>$[HANDHOLE/cl_featur]</td></tr>
+  <tr><td><b>cl_mnemon</b></td><td>$[HANDHOLE/cl_mnemon]</td></tr>
+  <tr><td><b>cl_user_d</b></td><td>$[HANDHOLE/cl_user_d]</td></tr>
+  <tr><td><b>cl_user__1</b></td><td>$[HANDHOLE/cl_user__1]</td></tr>
+  <tr><td><b>cl_user__2</b></td><td>$[HANDHOLE/cl_user__2]</td></tr>
+  <tr><td><b>cl_user__3</b></td><td>$[HANDHOLE/cl_user__3]</td></tr>
+  <tr><td><b>cl_lcr_ca</b></td><td>$[HANDHOLE/cl_lcr_ca]</td></tr>
+  <tr><td><b>nds_id</b></td><td>$[HANDHOLE/nds_id]</td></tr>
+  <tr><td><b>nds_migra</b></td><td>$[HANDHOLE/nds_migra]</td></tr>
+  <tr><td><b>wire_cent</b></td><td>$[HANDHOLE/wire_cent]</td></tr>
+  <tr><td><b>spec_id</b></td><td>$[HANDHOLE/spec_id]</td></tr>
+  <tr><td><b>sap_proje</b></td><td>$[HANDHOLE/sap_proje]</td></tr>
+  <tr><td><b>last_sap_</b></td><td>$[HANDHOLE/last_sap_]</td></tr>
+  <tr><td><b>placement</b></td><td>$[HANDHOLE/placement]</td></tr>
+  <tr><td><b>data_sour</b></td><td>$[HANDHOLE/data_sour]</td></tr>
+  <tr><td><b>created_at</b></td><td>$[HANDHOLE/created_at]</td></tr>
+  <tr><td><b>updated_at</b></td><td>$[HANDHOLE/updated_at]</td></tr>
+  <tr><td><b>create_us</b></td><td>$[HANDHOLE/create_us]</td></tr>
+  <tr><td><b>update_us</b></td><td>$[HANDHOLE/update_us]</td></tr>
+  <tr><td><b>sort_chil</b></td><td>$[HANDHOLE/sort_chil]</td></tr>
+</table>
+]]></text>
+			</BalloonStyle>
+			<ListStyle>
+			</ListStyle>
+		</Style>
+		<StyleMap id="pointStyleMap0">
+			<Pair>
+				<key>normal</key>
+				<styleUrl>#normPointStyle0</styleUrl>
+			</Pair>
+			<Pair>
+				<key>highlight</key>
+				<styleUrl>#hlightPointStyle0</styleUrl>
+			</Pair>
+		</StyleMap>
+		<Folder id="layer 0">
+			<name>HANDHOLE</name>
+			<Placemark>
+				<styleUrl>#pointStyleMap0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_HANDHOLE_SSSSSSSSDDDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS">
+						<SimpleData name="FeatId1">5</SimpleData>
+						<SimpleData name="id_2">6734004</SimpleData>
+						<SimpleData name="name"></SimpleData>
+						<SimpleData name="labor_cos"></SimpleData>
+						<SimpleData name="specifica">Medium - 24D-X-24W-X-36L</SimpleData>
+						<SimpleData name="type"></SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="cubic_con"></SimpleData>
+						<SimpleData name="drop_count">0</SimpleData>
+						<SimpleData name="drop_code"></SimpleData>
+						<SimpleData name="depth">0</SimpleData>
+						<SimpleData name="width">0</SimpleData>
+						<SimpleData name="installed">0</SimpleData>
+						<SimpleData name="account_c"></SimpleData>
+						<SimpleData name="cl_projec"></SimpleData>
+						<SimpleData name="cl_drawin"></SimpleData>
+						<SimpleData name="cl_legacy"></SimpleData>
+						<SimpleData name="cl_row_ow"></SimpleData>
+						<SimpleData name="cl_usage"></SimpleData>
+						<SimpleData name="cl_elevat">0</SimpleData>
+						<SimpleData name="cl_instal">00000</SimpleData>
+						<SimpleData name="cl_depart"></SimpleData>
+						<SimpleData name="cl_note"></SimpleData>
+						<SimpleData name="cl_assign"></SimpleData>
+						<SimpleData name="cl_leased"></SimpleData>
+						<SimpleData name="cl_insta_1"></SimpleData>
+						<SimpleData name="cl_owned_"></SimpleData>
+						<SimpleData name="cl_is_pre">0</SimpleData>
+						<SimpleData name="cl_last_m"></SimpleData>
+						<SimpleData name="cl_city"></SimpleData>
+						<SimpleData name="cl_county"></SimpleData>
+						<SimpleData name="cl_state"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="cl_featur"></SimpleData>
+						<SimpleData name="cl_mnemon"></SimpleData>
+						<SimpleData name="cl_user_d"></SimpleData>
+						<SimpleData name="cl_user__1"></SimpleData>
+						<SimpleData name="cl_user__2"></SimpleData>
+						<SimpleData name="cl_user__3"></SimpleData>
+						<SimpleData name="cl_lcr_ca">0</SimpleData>
+						<SimpleData name="nds_id"></SimpleData>
+						<SimpleData name="nds_migra"></SimpleData>
+						<SimpleData name="wire_cent"></SimpleData>
+						<SimpleData name="spec_id"></SimpleData>
+						<SimpleData name="sap_proje"></SimpleData>
+						<SimpleData name="last_sap_"></SimpleData>
+						<SimpleData name="placement">00000</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="created_at">20260113</SimpleData>
+						<SimpleData name="updated_at">00000</SimpleData>
+						<SimpleData name="create_us"></SimpleData>
+						<SimpleData name="update_us"></SimpleData>
+						<SimpleData name="sort_chil"></SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Point>
+					<coordinates>-78.00573005787801,35.52826790618026,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#pointStyleMap0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_HANDHOLE_SSSSSSSSDDDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS">
+						<SimpleData name="FeatId1">4</SimpleData>
+						<SimpleData name="id_2">6734003</SimpleData>
+						<SimpleData name="name"></SimpleData>
+						<SimpleData name="labor_cos"></SimpleData>
+						<SimpleData name="specifica">Medium - 24D-X-24W-X-36L</SimpleData>
+						<SimpleData name="type"></SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="cubic_con"></SimpleData>
+						<SimpleData name="drop_count">0</SimpleData>
+						<SimpleData name="drop_code"></SimpleData>
+						<SimpleData name="depth">0</SimpleData>
+						<SimpleData name="width">0</SimpleData>
+						<SimpleData name="installed">0</SimpleData>
+						<SimpleData name="account_c"></SimpleData>
+						<SimpleData name="cl_projec"></SimpleData>
+						<SimpleData name="cl_drawin"></SimpleData>
+						<SimpleData name="cl_legacy"></SimpleData>
+						<SimpleData name="cl_row_ow"></SimpleData>
+						<SimpleData name="cl_usage"></SimpleData>
+						<SimpleData name="cl_elevat">0</SimpleData>
+						<SimpleData name="cl_instal">00000</SimpleData>
+						<SimpleData name="cl_depart"></SimpleData>
+						<SimpleData name="cl_note"></SimpleData>
+						<SimpleData name="cl_assign"></SimpleData>
+						<SimpleData name="cl_leased"></SimpleData>
+						<SimpleData name="cl_insta_1"></SimpleData>
+						<SimpleData name="cl_owned_"></SimpleData>
+						<SimpleData name="cl_is_pre">0</SimpleData>
+						<SimpleData name="cl_last_m"></SimpleData>
+						<SimpleData name="cl_city"></SimpleData>
+						<SimpleData name="cl_county"></SimpleData>
+						<SimpleData name="cl_state"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="cl_featur"></SimpleData>
+						<SimpleData name="cl_mnemon"></SimpleData>
+						<SimpleData name="cl_user_d"></SimpleData>
+						<SimpleData name="cl_user__1"></SimpleData>
+						<SimpleData name="cl_user__2"></SimpleData>
+						<SimpleData name="cl_user__3"></SimpleData>
+						<SimpleData name="cl_lcr_ca">0</SimpleData>
+						<SimpleData name="nds_id"></SimpleData>
+						<SimpleData name="nds_migra"></SimpleData>
+						<SimpleData name="wire_cent"></SimpleData>
+						<SimpleData name="spec_id"></SimpleData>
+						<SimpleData name="sap_proje"></SimpleData>
+						<SimpleData name="last_sap_"></SimpleData>
+						<SimpleData name="placement">00000</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="created_at">20260113</SimpleData>
+						<SimpleData name="updated_at">00000</SimpleData>
+						<SimpleData name="create_us"></SimpleData>
+						<SimpleData name="update_us"></SimpleData>
+						<SimpleData name="sort_chil"></SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Point>
+					<coordinates>-77.996997969163,35.52850674825426,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#pointStyleMap0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_HANDHOLE_SSSSSSSSDDDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS">
+						<SimpleData name="FeatId1">3</SimpleData>
+						<SimpleData name="id_2">6734002</SimpleData>
+						<SimpleData name="name"></SimpleData>
+						<SimpleData name="labor_cos"></SimpleData>
+						<SimpleData name="specifica">Medium - 24D-X-24W-X-36L</SimpleData>
+						<SimpleData name="type"></SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="cubic_con"></SimpleData>
+						<SimpleData name="drop_count">0</SimpleData>
+						<SimpleData name="drop_code"></SimpleData>
+						<SimpleData name="depth">0</SimpleData>
+						<SimpleData name="width">0</SimpleData>
+						<SimpleData name="installed">0</SimpleData>
+						<SimpleData name="account_c"></SimpleData>
+						<SimpleData name="cl_projec"></SimpleData>
+						<SimpleData name="cl_drawin"></SimpleData>
+						<SimpleData name="cl_legacy"></SimpleData>
+						<SimpleData name="cl_row_ow"></SimpleData>
+						<SimpleData name="cl_usage"></SimpleData>
+						<SimpleData name="cl_elevat">0</SimpleData>
+						<SimpleData name="cl_instal">00000</SimpleData>
+						<SimpleData name="cl_depart"></SimpleData>
+						<SimpleData name="cl_note"></SimpleData>
+						<SimpleData name="cl_assign"></SimpleData>
+						<SimpleData name="cl_leased"></SimpleData>
+						<SimpleData name="cl_insta_1"></SimpleData>
+						<SimpleData name="cl_owned_"></SimpleData>
+						<SimpleData name="cl_is_pre">0</SimpleData>
+						<SimpleData name="cl_last_m"></SimpleData>
+						<SimpleData name="cl_city"></SimpleData>
+						<SimpleData name="cl_county"></SimpleData>
+						<SimpleData name="cl_state"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="cl_featur"></SimpleData>
+						<SimpleData name="cl_mnemon"></SimpleData>
+						<SimpleData name="cl_user_d"></SimpleData>
+						<SimpleData name="cl_user__1"></SimpleData>
+						<SimpleData name="cl_user__2"></SimpleData>
+						<SimpleData name="cl_user__3"></SimpleData>
+						<SimpleData name="cl_lcr_ca">0</SimpleData>
+						<SimpleData name="nds_id"></SimpleData>
+						<SimpleData name="nds_migra"></SimpleData>
+						<SimpleData name="wire_cent"></SimpleData>
+						<SimpleData name="spec_id"></SimpleData>
+						<SimpleData name="sap_proje"></SimpleData>
+						<SimpleData name="last_sap_"></SimpleData>
+						<SimpleData name="placement">00000</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="created_at">20260113</SimpleData>
+						<SimpleData name="updated_at">00000</SimpleData>
+						<SimpleData name="create_us"></SimpleData>
+						<SimpleData name="update_us"></SimpleData>
+						<SimpleData name="sort_chil"></SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Point>
+					<coordinates>-77.99163913480598,35.52800863940225,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#pointStyleMap0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_HANDHOLE_SSSSSSSSDDDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS">
+						<SimpleData name="FeatId1">2</SimpleData>
+						<SimpleData name="id_2">6734001</SimpleData>
+						<SimpleData name="name"></SimpleData>
+						<SimpleData name="labor_cos"></SimpleData>
+						<SimpleData name="specifica">Medium - 24D-X-24W-X-36L</SimpleData>
+						<SimpleData name="type"></SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="cubic_con"></SimpleData>
+						<SimpleData name="drop_count">0</SimpleData>
+						<SimpleData name="drop_code"></SimpleData>
+						<SimpleData name="depth">0</SimpleData>
+						<SimpleData name="width">0</SimpleData>
+						<SimpleData name="installed">0</SimpleData>
+						<SimpleData name="account_c"></SimpleData>
+						<SimpleData name="cl_projec"></SimpleData>
+						<SimpleData name="cl_drawin"></SimpleData>
+						<SimpleData name="cl_legacy"></SimpleData>
+						<SimpleData name="cl_row_ow"></SimpleData>
+						<SimpleData name="cl_usage"></SimpleData>
+						<SimpleData name="cl_elevat">0</SimpleData>
+						<SimpleData name="cl_instal">00000</SimpleData>
+						<SimpleData name="cl_depart"></SimpleData>
+						<SimpleData name="cl_note"></SimpleData>
+						<SimpleData name="cl_assign"></SimpleData>
+						<SimpleData name="cl_leased"></SimpleData>
+						<SimpleData name="cl_insta_1"></SimpleData>
+						<SimpleData name="cl_owned_"></SimpleData>
+						<SimpleData name="cl_is_pre">0</SimpleData>
+						<SimpleData name="cl_last_m"></SimpleData>
+						<SimpleData name="cl_city"></SimpleData>
+						<SimpleData name="cl_county"></SimpleData>
+						<SimpleData name="cl_state"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="cl_featur"></SimpleData>
+						<SimpleData name="cl_mnemon"></SimpleData>
+						<SimpleData name="cl_user_d"></SimpleData>
+						<SimpleData name="cl_user__1"></SimpleData>
+						<SimpleData name="cl_user__2"></SimpleData>
+						<SimpleData name="cl_user__3"></SimpleData>
+						<SimpleData name="cl_lcr_ca">0</SimpleData>
+						<SimpleData name="nds_id"></SimpleData>
+						<SimpleData name="nds_migra"></SimpleData>
+						<SimpleData name="wire_cent"></SimpleData>
+						<SimpleData name="spec_id"></SimpleData>
+						<SimpleData name="sap_proje"></SimpleData>
+						<SimpleData name="last_sap_"></SimpleData>
+						<SimpleData name="placement">00000</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="created_at">20260113</SimpleData>
+						<SimpleData name="updated_at">00000</SimpleData>
+						<SimpleData name="create_us"></SimpleData>
+						<SimpleData name="update_us"></SimpleData>
+						<SimpleData name="sort_chil"></SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Point>
+					<coordinates>-78.004755767169,35.53116180801127,0</coordinates>
+				</Point>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#pointStyleMap0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_HANDHOLE_SSSSSSSSDDDSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS">
+						<SimpleData name="FeatId1">1</SimpleData>
+						<SimpleData name="id_2">6734000</SimpleData>
+						<SimpleData name="name"></SimpleData>
+						<SimpleData name="labor_cos"></SimpleData>
+						<SimpleData name="specifica">Large - 30D-X-36W-X-48L</SimpleData>
+						<SimpleData name="type"></SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="cubic_con"></SimpleData>
+						<SimpleData name="drop_count">0</SimpleData>
+						<SimpleData name="drop_code"></SimpleData>
+						<SimpleData name="depth">0</SimpleData>
+						<SimpleData name="width">0</SimpleData>
+						<SimpleData name="installed">0</SimpleData>
+						<SimpleData name="account_c"></SimpleData>
+						<SimpleData name="cl_projec"></SimpleData>
+						<SimpleData name="cl_drawin"></SimpleData>
+						<SimpleData name="cl_legacy"></SimpleData>
+						<SimpleData name="cl_row_ow"></SimpleData>
+						<SimpleData name="cl_usage"></SimpleData>
+						<SimpleData name="cl_elevat">0</SimpleData>
+						<SimpleData name="cl_instal">00000</SimpleData>
+						<SimpleData name="cl_depart"></SimpleData>
+						<SimpleData name="cl_note"></SimpleData>
+						<SimpleData name="cl_assign"></SimpleData>
+						<SimpleData name="cl_leased"></SimpleData>
+						<SimpleData name="cl_insta_1"></SimpleData>
+						<SimpleData name="cl_owned_"></SimpleData>
+						<SimpleData name="cl_is_pre">0</SimpleData>
+						<SimpleData name="cl_last_m"></SimpleData>
+						<SimpleData name="cl_city"></SimpleData>
+						<SimpleData name="cl_county"></SimpleData>
+						<SimpleData name="cl_state"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="cl_featur"></SimpleData>
+						<SimpleData name="cl_mnemon"></SimpleData>
+						<SimpleData name="cl_user_d"></SimpleData>
+						<SimpleData name="cl_user__1"></SimpleData>
+						<SimpleData name="cl_user__2"></SimpleData>
+						<SimpleData name="cl_user__3"></SimpleData>
+						<SimpleData name="cl_lcr_ca">0</SimpleData>
+						<SimpleData name="nds_id"></SimpleData>
+						<SimpleData name="nds_migra"></SimpleData>
+						<SimpleData name="wire_cent"></SimpleData>
+						<SimpleData name="spec_id"></SimpleData>
+						<SimpleData name="sap_proje"></SimpleData>
+						<SimpleData name="last_sap_"></SimpleData>
+						<SimpleData name="placement">00000</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="created_at">20260113</SimpleData>
+						<SimpleData name="updated_at">00000</SimpleData>
+						<SimpleData name="create_us"></SimpleData>
+						<SimpleData name="update_us"></SimpleData>
+						<SimpleData name="sort_chil"></SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<Point>
+					<coordinates>-77.98748806806699,35.52779972762925,0</coordinates>
+				</Point>
+			</Placemark>
+		</Folder>
+	</Document>
+	<Document>
+		<name>UNDERGROUND</name>
+		<Schema name="UNDERGROUND" id="S_UNDERGROUND_SSSSSSSSSSS">
+			<SimpleField type="long" name="FeatId2"><displayName>&lt;b&gt;FeatId2&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="FeatId1"><displayName>&lt;b&gt;FeatId1&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="id_2"><displayName>&lt;b&gt;id&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="feeder_la"><displayName>&lt;b&gt;feeder_la&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="in_struct"><displayName>&lt;b&gt;in_struct&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="out_struc"><displayName>&lt;b&gt;out_struc&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="construct"><displayName>&lt;b&gt;construct&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="undergrou"><displayName>&lt;b&gt;undergrou&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="cl_owners"><displayName>&lt;b&gt;cl_owners&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="data_sour"><displayName>&lt;b&gt;data_sour&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="brsp_plac"><displayName>&lt;b&gt;brsp_plac&lt;/b&gt;</displayName>
+</SimpleField>
+			<SimpleField type="string" name="TEST"><displayName>&lt;b&gt;TEST&lt;/b&gt;</displayName>
+</SimpleField>
+		</Schema>
+		<StyleMap id="style0">
+			<Pair>
+				<key>normal</key>
+				<styleUrl>#style00</styleUrl>
+			</Pair>
+			<Pair>
+				<key>highlight</key>
+				<styleUrl>#style01</styleUrl>
+			</Pair>
+		</StyleMap>
+		<Style id="style00">
+			<BalloonStyle>
+				<text><![CDATA[<table border="0">
+  <tr><td><b>FeatId2</b></td><td>$[UNDERGROUND/FeatId2]</td></tr>
+  <tr><td><b>FeatId1</b></td><td>$[UNDERGROUND/FeatId1]</td></tr>
+  <tr><td><b>id</b></td><td>$[UNDERGROUND/id_2]</td></tr>
+  <tr><td><b>feeder_la</b></td><td>$[UNDERGROUND/feeder_la]</td></tr>
+  <tr><td><b>in_struct</b></td><td>$[UNDERGROUND/in_struct]</td></tr>
+  <tr><td><b>out_struc</b></td><td>$[UNDERGROUND/out_struc]</td></tr>
+  <tr><td><b>construct</b></td><td>$[UNDERGROUND/construct]</td></tr>
+  <tr><td><b>undergrou</b></td><td>$[UNDERGROUND/undergrou]</td></tr>
+  <tr><td><b>cl_owners</b></td><td>$[UNDERGROUND/cl_owners]</td></tr>
+  <tr><td><b>data_sour</b></td><td>$[UNDERGROUND/data_sour]</td></tr>
+  <tr><td><b>brsp_plac</b></td><td>$[UNDERGROUND/brsp_plac]</td></tr>
+  <tr><td><b>TEST</b></td><td>$[UNDERGROUND/TEST]</td></tr>
+</table>
+]]></text>
+			</BalloonStyle>
+			<LineStyle>
+				<color>ff00ff00</color>
+				<width>2</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>ffff0000</color>
+			</PolyStyle>
+		</Style>
+		<Style id="style01">
+			<BalloonStyle>
+				<text><![CDATA[<table border="0">
+  <tr><td><b>FeatId2</b></td><td>$[UNDERGROUND/FeatId2]</td></tr>
+  <tr><td><b>FeatId1</b></td><td>$[UNDERGROUND/FeatId1]</td></tr>
+  <tr><td><b>id</b></td><td>$[UNDERGROUND/id_2]</td></tr>
+  <tr><td><b>feeder_la</b></td><td>$[UNDERGROUND/feeder_la]</td></tr>
+  <tr><td><b>in_struct</b></td><td>$[UNDERGROUND/in_struct]</td></tr>
+  <tr><td><b>out_struc</b></td><td>$[UNDERGROUND/out_struc]</td></tr>
+  <tr><td><b>construct</b></td><td>$[UNDERGROUND/construct]</td></tr>
+  <tr><td><b>undergrou</b></td><td>$[UNDERGROUND/undergrou]</td></tr>
+  <tr><td><b>cl_owners</b></td><td>$[UNDERGROUND/cl_owners]</td></tr>
+  <tr><td><b>data_sour</b></td><td>$[UNDERGROUND/data_sour]</td></tr>
+  <tr><td><b>brsp_plac</b></td><td>$[UNDERGROUND/brsp_plac]</td></tr>
+  <tr><td><b>TEST</b></td><td>$[UNDERGROUND/TEST]</td></tr>
+</table>
+]]></text>
+			</BalloonStyle>
+			<LineStyle>
+				<color>ff00ff00</color>
+				<width>2</width>
+			</LineStyle>
+			<PolyStyle>
+				<color>ffff0000</color>
+			</PolyStyle>
+		</Style>
+		<Folder id="layer 0">
+			<name>UNDERGROUND</name>
+			<Placemark>
+				<styleUrl>#style0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_UNDERGROUND_SSSSSSSSSSS">
+						<SimpleData name="FeatId2">7</SimpleData>
+						<SimpleData name="FeatId1">3</SimpleData>
+						<SimpleData name="id_2">94310786</SimpleData>
+						<SimpleData name="feeder_la">BSPD001</SimpleData>
+						<SimpleData name="in_struct">central_office/52774</SimpleData>
+						<SimpleData name="out_struc">handhole/6563688</SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="undergrou">Underground</SimpleData>
+						<SimpleData name="cl_owners">COMPANY</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="brsp_plac">00000</SimpleData>
+						<SimpleData name="TEST">MultiLineString Z ((-77.98388189 35.52706755 0, -7</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<LineString>
+					<coordinates>
+						-77.98381808667799,35.52735062326428,0 -77.983858804504,35.52760386509022,0 -77.98509040894541,35.52765782522246,0 
+					</coordinates>
+				</LineString>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#style0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_UNDERGROUND_SSSSSSSSSSS">
+						<SimpleData name="FeatId2">6</SimpleData>
+						<SimpleData name="FeatId1">5</SimpleData>
+						<SimpleData name="id_2">94310788</SimpleData>
+						<SimpleData name="feeder_la">BSPD001.01</SimpleData>
+						<SimpleData name="in_struct">handhole/6563688</SimpleData>
+						<SimpleData name="out_struc">handhole/6563689</SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="undergrou">Underground</SimpleData>
+						<SimpleData name="cl_owners">COMPANY</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="brsp_plac">00000</SimpleData>
+						<SimpleData name="TEST">MultiLineString Z ((-77.98509041 35.52765783 0, -7</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<LineString>
+					<coordinates>
+						-77.98509040894541,35.52765782522246,0 -77.98529733885694,35.52767524115488,0 -77.98666183676767,35.52774660217933,0 -77.98748806806697,35.52779972762905,0 
+					</coordinates>
+				</LineString>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#style0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_UNDERGROUND_SSSSSSSSSSS">
+						<SimpleData name="FeatId2">5</SimpleData>
+						<SimpleData name="FeatId1">7</SimpleData>
+						<SimpleData name="id_2">94310790</SimpleData>
+						<SimpleData name="feeder_la">BSPD001.01</SimpleData>
+						<SimpleData name="in_struct">handhole/6563689</SimpleData>
+						<SimpleData name="out_struc">mywcom_route_junction/169334434</SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="undergrou">Underground</SimpleData>
+						<SimpleData name="cl_owners">COMPANY</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="brsp_plac">00000</SimpleData>
+						<SimpleData name="TEST">MultiLineString Z ((-77.98748807 35.52779973 0, -7</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<LineString>
+					<coordinates>
+						-77.98748806806697,35.52779972762905,0 -77.98918930272067,35.52788907328592,0 -77.99067342536443,35.52797118149555,0 -77.99163913480557,35.52800863940233,0 -77.99181115165541,35.52801764053285,0 
+					</coordinates>
+				</LineString>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#style0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_UNDERGROUND_SSSSSSSSSSS">
+						<SimpleData name="FeatId2">4</SimpleData>
+						<SimpleData name="FeatId1">10</SimpleData>
+						<SimpleData name="id_2">94310793</SimpleData>
+						<SimpleData name="feeder_la">BSPD001.01</SimpleData>
+						<SimpleData name="in_struct">mywcom_route_junction/169334425</SimpleData>
+						<SimpleData name="out_struc">mywcom_route_junction/169334434</SimpleData>
+						<SimpleData name="construct">In Service</SimpleData>
+						<SimpleData name="undergrou">Underground</SimpleData>
+						<SimpleData name="cl_owners">COMPANY</SimpleData>
+						<SimpleData name="data_sour">FPS</SimpleData>
+						<SimpleData name="brsp_plac">00000</SimpleData>
+						<SimpleData name="TEST">MultiLineString Z ((-77.99273796 35.52806619 0, -7</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<LineString>
+					<coordinates>
+						-77.99273795720887,35.52806618605653,0 -77.99181115165541,35.52801764053285,0 
+					</coordinates>
+				</LineString>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#style0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_UNDERGROUND_SSSSSSSSSSS">
+						<SimpleData name="FeatId2">2</SimpleData>
+						<SimpleData name="FeatId1">0</SimpleData>
+						<SimpleData name="id_2"></SimpleData>
+						<SimpleData name="feeder_la"></SimpleData>
+						<SimpleData name="in_struct"></SimpleData>
+						<SimpleData name="out_struc"></SimpleData>
+						<SimpleData name="construct"></SimpleData>
+						<SimpleData name="undergrou"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="data_sour"></SimpleData>
+						<SimpleData name="brsp_plac"></SimpleData>
+						<SimpleData name="TEST">MultiLineString Z ((-77.99273796 35.52806619 0, -7</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<LineString>
+					<coordinates>
+						-77.99273795720887,35.52806618605653,0 -77.99492676467882,35.52819583678009,0 -77.99559551281385,35.52823544111986,0 -77.99619435912798,35.5283174066734,0 -77.99699796916279,35.52850674825454,0 -77.9976377225647,35.52869717218312,0 -77.99995008351493,35.52938541558711,0 -78.00233483468446,35.53025894988676,0 -78.004755767169,35.5311618080117,0 -78.00493438286269,35.53122998246271,0 
+					</coordinates>
+				</LineString>
+			</Placemark>
+			<Placemark>
+				<styleUrl>#style0</styleUrl>
+				<ExtendedData>
+					<SchemaData schemaUrl="#S_UNDERGROUND_SSSSSSSSSSS">
+						<SimpleData name="FeatId2">1</SimpleData>
+						<SimpleData name="FeatId1">0</SimpleData>
+						<SimpleData name="id_2"></SimpleData>
+						<SimpleData name="feeder_la"></SimpleData>
+						<SimpleData name="in_struct"></SimpleData>
+						<SimpleData name="out_struc"></SimpleData>
+						<SimpleData name="construct"></SimpleData>
+						<SimpleData name="undergrou"></SimpleData>
+						<SimpleData name="cl_owners"></SimpleData>
+						<SimpleData name="data_sour"></SimpleData>
+						<SimpleData name="brsp_plac"></SimpleData>
+						<SimpleData name="TEST">MultiLineString Z ((-78.0048958 35.53132733 0, -78</SimpleData>
+					</SchemaData>
+				</ExtendedData>
+				<LineString>
+					<coordinates>
+						-78.00493438286269,35.53122998246271,0 -78.0050209670202,35.53097658971409,0 -78.00506046464268,35.53086591320413,0 -78.00546482424468,35.52929702738312,0 -78.00573005787784,35.5282679061803,0 
+					</coordinates>
+				</LineString>
+			</Placemark>
+		</Folder>
+	</Document>
+	<atom:link rel="app" href="https://www.google.com/earth/about/versions/#earth-pro" title="Google Earth Pro 7.3.6.10441"></atom:link>
+</Folder>
+</kml>

@@ -1,0 +1,6 @@
+Le ZIP contient un fichier compilé .VLX ainsi que les fichiers source.
+
+Pour le chargement, il est possible :
+- soit de charger uniquement le fichier .VLX
+- soit de charger le (ou les) fichier(s) .LSP et d'enrgistrer, sous son (ou leurs)  nom(s),
+  le (ou les) fichier(s) .DCL dans un répertoire du chemin de recherche des fichiers de support d'AutocAD.
